@@ -1,0 +1,10 @@
+.welcome-design{
+    height: 80vh;
+    width: 100vw;
+
+    background-color: rgb(85, 145, 122);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
