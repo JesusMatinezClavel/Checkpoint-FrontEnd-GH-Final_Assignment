@@ -51,3 +51,14 @@
 
     margin: 1em;
 }
+
+.lucide-button{
+    height: 10em;
+    width: 10em;
+
+    background-color: aliceblue;
+
+    &:active {
+        transform: translateY(.2em)
+    }
+}

@@ -12,3 +12,7 @@
 .separator-header {
     width: 80%;
 }
+
+.closeCard:active{
+    transform: translateY(.1em);
+}

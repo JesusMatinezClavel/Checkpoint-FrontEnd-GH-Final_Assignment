@@ -1,6 +1,9 @@
 // Styles
 import './header.css'
 
+// Lucide
+import { X } from "lucide-react";
+
 // Methods/Modules
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -18,11 +21,12 @@ import { CText } from '../C-text/cText';
 
 export const Header = () => {
 
-    // INSTANCES
+    /////// INSTANCES
+
+    ////// HOOKS
     const [showLogin, setShowLogin] = useState(false)
     const [showRegister, setShowRegister] = useState(false)
 
-    // HOOKS
     const [registerData, setRegisterData] = useState({
         avatar: "",
         name: "",
@@ -47,11 +51,14 @@ export const Header = () => {
 
     const [errorMsg, setErrorMsg] = useState("")
 
-    // LOGIC
+    /////// LOGIC
+
+    // Change document title
     useEffect(() => {
         document.title = "Welcome";
     }, [])
 
+    // Input Handler
     const inputHandler = (e) => {
         showLogin
             ? (
@@ -77,6 +84,7 @@ export const Header = () => {
 
     }
 
+    // Check Error
     const checkError = (e) => {
 
         const valid = validate(e.target.name, e.target.value)
@@ -101,9 +109,7 @@ export const Header = () => {
 
     }
 
-    console.log(loginDataError);
-    console.log(errorMsg);
-
+    // Link errors with errorsMsg
     useEffect(() => {
         let allErrorsCleared
         if (showLogin) {
@@ -127,18 +133,38 @@ export const Header = () => {
         allErrorsCleared ? setErrorMsg("") : null
     }, [loginDataError, registerDataError])
 
+
+    // Toogle login card
     const toggleLogin = () => {
         setShowRegister(false)
         showLogin
             ? setShowLogin(false)
-            : setShowLogin(true)
+            : (setShowLogin(true),
+                setLoginData({
+                    email: "",
+                    password: ""
+                }),
+                setLoginDataError({
+                    emailError: "",
+                    passwordError: ""
+                })
+            )
     }
 
+    // Toogle register card
     const toggleRegister = () => {
         setShowLogin(false)
         showRegister
             ? setShowRegister(false)
-            : setShowRegister(true)
+            : (setShowRegister(true),
+                setRegisterData({
+                    email: "",
+                    password: ""
+                }),
+                setRegisterDataError({
+                    emailError: "",
+                    passwordError: ""
+                }))
     }
 
     return (
@@ -149,30 +175,38 @@ export const Header = () => {
 
             {/* Loggin Card */}
             <CCard className={showLogin ? "card-login" : 'hidden'}>
-                <CInput
-                    disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
-                    name={'email'}
-                    type={'text'}
-                    value={loginData.email || ""}
-                    placeholder={'input email'}
-                    onChange={(e) => inputHandler(e)}
-                    onBlur={(e) => checkError(e)}
-                />
-                <CInput
-                    disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
-                    name={'password'}
-                    type={'text'}
-                    value={loginData.password || ""}
-                    placeholder={'input password'}
-                    onChange={(e) => inputHandler(e)}
-                    onBlur={(e) => checkError(e)}
-                />
-                <CButton className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                <div className="hideCard"><X onClick={() => toggleLogin()} className='closeCard' /></div>
+                <div className="login-inputs">
+                    <div className="login-info">
+                        <CInput
+                            disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
+                            name={'email'}
+                            type={'text'}
+                            value={loginData.email || ""}
+                            placeholder={'input email'}
+                            onChange={(e) => inputHandler(e)}
+                            onBlur={(e) => checkError(e)}
+                        />
+                        <CInput
+                            disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
+                            name={'password'}
+                            type={'text'}
+                            value={loginData.password || ""}
+                            placeholder={'input password'}
+                            onChange={(e) => inputHandler(e)}
+                            onBlur={(e) => checkError(e)}
+                        />
+                    </div>
+                </div>
+                <div className="login-button">
+                    <CButton className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                </div>
                 <CText title={errorMsg} />
             </CCard>
 
             {/* Register Card */}
             <CCard className={showRegister ? "card-register" : 'hidden'}>
+                <div className="hideCard"><X onClick={() => toggleRegister()} className='closeCard' /></div>
                 <div className="register-inputs">
                     <CInput
                         disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}

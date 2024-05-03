@@ -1,8 +1,8 @@
-.profile-design{
+.home-design{
     min-height: 80vh;
     width: 100vw;
 
-    background-color: rgb(135, 85, 145);
+    background-color: rgb(136, 165, 108);
 
     display: flex;
     justify-content: center;
