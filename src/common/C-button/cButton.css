@@ -6,6 +6,7 @@
     background-color: aliceblue;
 
     border-radius: .5em;
+    border: .1em solid grey;
 
     &:hover{
         background-color: rgb(181, 191, 201);

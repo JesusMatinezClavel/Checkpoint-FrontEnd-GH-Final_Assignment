@@ -1,0 +1,12 @@
+.card-design{
+    height: auto;
+    width: auto;
+
+    padding: 5em 3em;
+
+    background-color: aquamarine;
+
+    border-radius: .5em;
+    border: .1em solid grey;
+
+}
