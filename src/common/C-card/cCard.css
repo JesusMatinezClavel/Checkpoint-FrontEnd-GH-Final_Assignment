@@ -2,7 +2,7 @@
     height: auto;
     width: auto;
 
-    padding: 5em 3em;
+    padding: 5em 1em;
 
     background-color: aquamarine;
 
@@ -12,6 +12,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 }
 
 .hidden {
@@ -20,6 +21,22 @@
 
 .card-login,
 .card-register {
+    height: 30em;
+    width: 25em;
+
     position: absolute;
     top: 15em
+}
+
+.register-inputs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
