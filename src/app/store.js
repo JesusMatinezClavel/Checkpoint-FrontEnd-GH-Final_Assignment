@@ -7,11 +7,11 @@ import { thunk } from "redux-thunk";
 import storage from "redux-persist/lib/storage";
 
 // Redux Slices
-
+import { userSlice } from "./slices/userSlice";
 
 const reducers = combineReducers(
     {
-
+        user: userSlice
     }
 )
 
