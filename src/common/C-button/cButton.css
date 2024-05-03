@@ -1,4 +1,4 @@
-.button-design{
+.button-design {
     height: auto;
     width: auto;
     padding: .5em 1em;
@@ -8,10 +8,24 @@
     border-radius: .5em;
     border: .1em solid grey;
 
-    &:hover{
+    &:hover {
         background-color: rgb(181, 191, 201);
     }
-    &:active{
+
+    &:active {
         transform: translateY(.2em)
     }
+}
+
+.button-loggin,
+.button-register {
+    height: 2em;
+    width: 5em;
+    background-color: aqua;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 1em;
 }

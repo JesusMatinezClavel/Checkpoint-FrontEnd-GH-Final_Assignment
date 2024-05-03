@@ -1,4 +1,4 @@
-.header-design{
+.header-design {
     height: 10vh;
     width: 100vw;
 
@@ -7,4 +7,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.separator-header {
+    width: 80%;
 }
