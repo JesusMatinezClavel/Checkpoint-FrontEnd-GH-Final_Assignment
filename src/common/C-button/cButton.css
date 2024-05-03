@@ -17,6 +17,28 @@
     }
 }
 
+.register-disabled,
+.loggin-disabled {
+    height: 2em;
+    width: 5em;
+
+    background-color: grey;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 1em;
+
+    &:hover {
+        background-color: grey;
+    }
+
+    &:active {
+        transform: translateY(0em)
+    }
+}
+
 .button-loggin,
 .button-register {
     height: 2em;
