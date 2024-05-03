@@ -1,9 +1,15 @@
+import { Routes, Route } from "react-router-dom";
+
+
+// Views
 import { Welcome } from "../welcome/welcome";
 
 export const Body = () => {
     return (
         <>
-            <Welcome />
+            <Routes>
+                <Route path='/' element={<Welcome />} />
+            </Routes>
         </>
     )
 }
