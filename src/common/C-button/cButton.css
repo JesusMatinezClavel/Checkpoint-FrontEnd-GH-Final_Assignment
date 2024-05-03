@@ -1,0 +1,16 @@
+.button-design{
+    height: auto;
+    width: auto;
+    padding: .5em 1em;
+
+    background-color: aliceblue;
+
+    border-radius: .5em;
+
+    &:hover{
+        background-color: rgb(181, 191, 201);
+    }
+    &:active{
+        transform: translateY(.2em)
+    }
+}
