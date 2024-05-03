@@ -1,7 +1,10 @@
 import './cCard.css'
 
-export const CCard = ({ children }) => {
+export const CCard = ({ children, className }) => {
+
+    const combinedClasses = `card-design ${className || ""}`
+
     return (
-        <div className="card-design">{children}</div>
+        <div className={combinedClasses}>{children}</div>
     )
 }

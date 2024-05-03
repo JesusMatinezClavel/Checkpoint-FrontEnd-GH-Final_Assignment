@@ -1,0 +1,17 @@
+.input-design {
+    height: 2em;
+    width: 10em;
+
+    padding: .3em;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+
+    font-family: roboto;
+    
+
+    border-radius: .5em;
+    background-color: rgb(236, 235, 233);
+}

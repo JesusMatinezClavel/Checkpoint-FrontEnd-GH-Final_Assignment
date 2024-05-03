@@ -1,7 +1,10 @@
 import './cButton.css'
 
-export const CButton = ({ title }) => {
+export const CButton = ({ title,className }) => {
+
+    const combinedClasses = `button-design ${className || ""}`
+
     return (
-        <div className="button-design">{title}</div>
+        <div className={combinedClasses}>{title}</div>
     )
 }
