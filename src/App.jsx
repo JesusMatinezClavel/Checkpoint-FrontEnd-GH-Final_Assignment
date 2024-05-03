@@ -3,7 +3,7 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Views
-import { Home } from './views/home/home'
+import { Body } from "./pages/body/body";
 import { Header } from './common/header/header';
 import { Footer } from './common/footer/footer';
 
@@ -11,7 +11,7 @@ function App() {
   return (
     <>
       <Header />
-      <Home />
+      <Body />
       <Footer />
     </>
   )
