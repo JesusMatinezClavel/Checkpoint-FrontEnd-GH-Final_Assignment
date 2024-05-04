@@ -169,7 +169,7 @@ export const Header = () => {
                 }
                 dispatch(login({ credentials: passport }))
             }
-            
+
         } catch (error) {
             if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }));
