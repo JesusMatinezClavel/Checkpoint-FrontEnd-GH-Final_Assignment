@@ -9,16 +9,15 @@ export const loginService = async (loginData) => {
             },
             body: JSON.stringify(loginData)
         }
-
         const response = await fetch(`${root}/auth/login`, options)
         const data = await response.json()
 
-        if (data.success) {
-            throw new Error(data.message)
+        if (!data.success) {
+            throw new Error(data.error)
         }
 
         return data
     } catch (error) {
-       console.log(error);
+        return error
     }
 }

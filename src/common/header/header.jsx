@@ -6,6 +6,11 @@ import { X } from "lucide-react";
 
 // Methods/Modules
 import { useState, useEffect } from "react";
+import { decodeToken } from "react-jwt";
+
+// Redux
+import { useDispatch, useSelector } from "react-redux";
+import { userData, login, logout } from "../../app/slices/userSlice";
 
 // Api Calls
 import { loginService } from '../../services/apiCalls';
@@ -26,11 +31,16 @@ import { CText } from '../C-text/cText';
 export const Header = () => {
 
     /////// INSTANCES
+    const dispatch = useDispatch()
+    const rdxUser = useSelector(userData)
 
     ////// HOOKS
     const [showLogin, setShowLogin] = useState(false)
     const [showRegister, setShowRegister] = useState(false)
+    const [errorMsg, setErrorMsg] = useState("")
 
+
+    // Login Data
     const [registerData, setRegisterData] = useState({
         avatar: "",
         name: "",
@@ -44,6 +54,7 @@ export const Header = () => {
         passwordError: ""
     })
 
+    // Register Data
     const [loginData, setLoginData] = useState({
         email: "",
         password: ""
@@ -53,7 +64,6 @@ export const Header = () => {
         passwordError: ""
     })
 
-    const [errorMsg, setErrorMsg] = useState("")
 
     /////// LOGIC
 
@@ -137,18 +147,35 @@ export const Header = () => {
         allErrorsCleared ? setErrorMsg("") : null
     }, [loginDataError, registerDataError])
 
-    // Login call
-    const login = async (loginData) => {
+    // LOGIN CALL
+    const loginInput = async () => {
         try {
             const fetched = await loginService(loginData)
             if (!fetched.success) {
-                setErrorMsg(fetched.error)
+                setErrorMsg(fetched.message)
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
+                throw new Error(fetched.message)
             }
-        } catch (error) {
 
+            if (fetched.data) {
+                const token = fetched.data.token
+                const decodedToken = decodeToken(token)
+
+                const passport = {
+                    userToken: token,
+                    userTokenData: decodedToken
+                }
+                dispatch(login({ credentials: passport }))
+            }
+            
+        } catch (error) {
+            if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }));
+            } else {
+                console.log(error);
+            }
         }
     }
 
@@ -225,7 +252,7 @@ export const Header = () => {
                             <CInput
                                 disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
                                 name={'password'}
-                                type={'text'}
+                                type={'password'}
                                 value={loginData.password || ""}
                                 placeholder={'input password'}
                                 onChange={(e) => inputHandler(e)}
@@ -234,7 +261,7 @@ export const Header = () => {
                         </div>
                     </div>
                     <div className="login-button">
-                        <CButton onClick={errorMsg === "" ? () => login() : null} className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                        <CButton onClick={errorMsg === "" ? () => loginInput() : null} className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
                         <CText title={errorMsg} />
                     </div>
                 </CCard>
