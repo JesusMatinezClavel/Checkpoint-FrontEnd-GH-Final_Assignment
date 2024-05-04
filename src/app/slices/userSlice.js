@@ -9,13 +9,13 @@ export const userSlice = createSlice({
         login: (state, action) => {
             return {
                 ...state,
-                ...action.payload
+                credentials: action.payload
             }
         },
         logout: (state, action) => {
             return {
                 ...state,
-                ...action.payload
+                credentials: {}
             }
         }
     }
