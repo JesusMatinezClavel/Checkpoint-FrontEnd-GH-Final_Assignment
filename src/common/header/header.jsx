@@ -5,8 +5,12 @@ import './header.css'
 import { X } from "lucide-react";
 
 // Methods/Modules
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+
+// Api Calls
+import { loginService } from '../../services/apiCalls';
+
+// Custom Methods
 import { validate } from "../../utils/validator";
 
 // Custom Elements
@@ -133,6 +137,20 @@ export const Header = () => {
         allErrorsCleared ? setErrorMsg("") : null
     }, [loginDataError, registerDataError])
 
+    // Login call
+    const login = async (loginData) => {
+        try {
+            const fetched = await loginService(loginData)
+            if (!fetched.success) {
+                setErrorMsg(fetched.error)
+                setTimeout(() => {
+                    setErrorMsg("")
+                }, 2000);
+            }
+        } catch (error) {
+
+        }
+    }
 
     // Toogle login card
     const toggleLogin = () => {
@@ -167,6 +185,22 @@ export const Header = () => {
                 }))
     }
 
+    // Hide Cards when clicking outside
+    const hideCard = (e) => {
+        showLogin
+            ? (
+                e.target.classList[0] === 'welcome-overlay'
+                    ? setShowLogin(false)
+                    : null
+            ) : null
+        showRegister
+            ? (
+                e.target.classList[0] === 'welcome-overlay'
+                    ? setShowRegister(false)
+                    : null
+            ) : null
+    }
+
     return (
         <div className="header-design">
             <div className="separator-header"></div>
@@ -174,82 +208,88 @@ export const Header = () => {
             <CButton className={'button-register'} title={'register'} onClick={() => toggleRegister()} />
 
             {/* Loggin Card */}
-            <CCard className={showLogin ? "card-login" : 'hidden'}>
-                <div className="hideCard"><X onClick={() => toggleLogin()} className='closeCard' /></div>
-                <div className="login-inputs">
-                    <div className="login-info">
-                        <CInput
-                            disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
-                            name={'email'}
-                            type={'text'}
-                            value={loginData.email || ""}
-                            placeholder={'input email'}
-                            onChange={(e) => inputHandler(e)}
-                            onBlur={(e) => checkError(e)}
-                        />
-                        <CInput
-                            disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
-                            name={'password'}
-                            type={'text'}
-                            value={loginData.password || ""}
-                            placeholder={'input password'}
-                            onChange={(e) => inputHandler(e)}
-                            onBlur={(e) => checkError(e)}
-                        />
+            <div onClick={(e) => hideCard(e)} className={showLogin ? 'welcome-overlay' : 'hidden'}>
+                <CCard className={showLogin ? "card-login" : 'hidden'}>
+                    <div className="closeCard"><X onClick={() => toggleLogin()} className='icon-closeCard' /></div>
+                    <div className="login-inputs">
+                        <div className="login-info">
+                            <CInput
+                                disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
+                                name={'email'}
+                                type={'text'}
+                                value={loginData.email || ""}
+                                placeholder={'input email'}
+                                onChange={(e) => inputHandler(e)}
+                                onBlur={(e) => checkError(e)}
+                            />
+                            <CInput
+                                disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
+                                name={'password'}
+                                type={'text'}
+                                value={loginData.password || ""}
+                                placeholder={'input password'}
+                                onChange={(e) => inputHandler(e)}
+                                onBlur={(e) => checkError(e)}
+                            />
+                        </div>
                     </div>
-                </div>
-                <div className="login-button">
-                    <CButton className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
-                </div>
-                <CText title={errorMsg} />
-            </CCard>
+                    <div className="login-button">
+                        <CButton onClick={errorMsg === "" ? () => login() : null} className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                        <CText title={errorMsg} />
+                    </div>
+                </CCard>
+            </div>
 
             {/* Register Card */}
-            <CCard className={showRegister ? "card-register" : 'hidden'}>
-                <div className="hideCard"><X onClick={() => toggleRegister()} className='closeCard' /></div>
-                <div className="register-inputs">
-                    <CInput
-                        disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
-                        name={'avatar'}
-                        type={'file'}
-                        value={registerData.avatar || ""}
-                        placeholder={'input avatar'}
-                        onChange={(e) => inputHandler(e)}
-                        onBlur={(e) => checkError(e)}
-                    />
-                    <div className="register-info">
-                        <CInput
-                            disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
-                            name={'name'}
-                            type={'text'}
-                            value={registerData.name || ""}
-                            placeholder={'input name'}
-                            onChange={(e) => inputHandler(e)}
-                            onBlur={(e) => checkError(e)}
-                        />
-                        <CInput
-                            disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
-                            name={'email'}
-                            type={'text'}
-                            value={registerData.email || ""}
-                            placeholder={'input email'}
-                            onChange={(e) => inputHandler(e)}
-                            onBlur={(e) => checkError(e)}
-                        />
-                        <CInput
-                            disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
-                            name={'password'}
-                            type={'text'}
-                            value={registerData.password || ""}
-                            placeholder={'input password'}
-                            onChange={(e) => inputHandler(e)}
-                            onBlur={(e) => checkError(e)}
-                        />
+            <div onClick={(e) => hideCard(e)} className={showRegister ? "welcome-overlay" : 'hidden'}>
+                <CCard className={showRegister ? "card-register" : 'hidden'}>
+                    <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
+                    <div className="register-inputs">
+                        <div className="register-info">
+                            <CInput
+                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
+                                name={'avatar'}
+                                type={'file'}
+                                value={registerData.avatar || ""}
+                                placeholder={'input avatar'}
+                                onChange={(e) => inputHandler(e)}
+                                onBlur={(e) => checkError(e)}
+                            />
+                            <CInput
+                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
+                                name={'name'}
+                                type={'text'}
+                                value={registerData.name || ""}
+                                placeholder={'input name'}
+                                onChange={(e) => inputHandler(e)}
+                                onBlur={(e) => checkError(e)}
+                            />
+                            <CInput
+                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
+                                name={'email'}
+                                type={'text'}
+                                value={registerData.email || ""}
+                                placeholder={'input email'}
+                                onChange={(e) => inputHandler(e)}
+                                onBlur={(e) => checkError(e)}
+                            />
+                            <CInput
+                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
+                                name={'password'}
+                                type={'text'}
+                                value={registerData.password || ""}
+                                placeholder={'input password'}
+                                onChange={(e) => inputHandler(e)}
+                                onBlur={(e) => checkError(e)}
+                            />
+                        </div>
                     </div>
-                </div>
-                <CButton className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
-                <CText title={errorMsg} />
-            </CCard>
+                    <div className="register-button">
+                        <CButton className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
+                        <CText title={errorMsg} />
+                    </div>
+                </CCard>
+            </div>
         </div>
     )
 }
