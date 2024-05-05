@@ -43,3 +43,24 @@ export const registerService = async (registerData) => {
         return error
     }
 }
+
+export const uploadAvatarService = async (file) => {
+    try {
+        const formData = new formData()
+        formData.append("avatar", file)
+        const options = {
+            method: 'POST',
+            file: formData
+        }
+        const response = await fetch(`${root}/file/avatar`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
