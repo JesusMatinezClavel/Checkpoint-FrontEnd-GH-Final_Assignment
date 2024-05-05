@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userData, login, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { loginService } from '../../services/apiCalls';
+import { loginService, registerService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -33,6 +33,8 @@ export const Header = () => {
     /////// INSTANCES
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
+    const reader = new FileReader()
+    let file
 
     ////// HOOKS
     const [showLogin, setShowLogin] = useState(false)
@@ -53,6 +55,8 @@ export const Header = () => {
         emailError: "",
         passwordError: ""
     })
+    const [registerAvatar, setRegisterAvatar] = useState(null)
+    const [avatarPreview, setAvatarPreview] = useState('../../../img/default-ProfileImg.png')
 
     // Register Data
     const [loginData, setLoginData] = useState({
@@ -63,7 +67,6 @@ export const Header = () => {
         emailError: "",
         passwordError: ""
     })
-
 
     /////// LOGIC
 
@@ -85,10 +88,28 @@ export const Header = () => {
 
         showRegister
             ? (
-                setRegisterData((prevState) => ({
-                    ...prevState,
-                    [e.target.name]: e.target.value
-                }))
+                e.target.files
+                    ? (
+                        file = e.target.files[0],
+                        file
+                            ? (
+                                setAvatarPreview(file),
+                                setRegisterData((prevState) => ({
+                                    ...prevState,
+                                    avatar: file.name
+                                })),
+                                reader.onload = (event) => {
+                                    setRegisterAvatar(event.target.result)
+                                },
+                                reader.readAsDataURL(file)
+                            ) : null
+                    )
+                    : (
+                        setRegisterData((prevState) => ({
+                            ...prevState,
+                            [e.target.name]: e.target.value
+                        }))
+                    )
             )
             : null
 
@@ -199,7 +220,24 @@ export const Header = () => {
 
     /////// REGISTER
     // Register Call
-    
+    const registerInput = async () => {
+        try {
+            const fetchedInfo = await registerService(registerData)
+            if (!fetchedInfo.success) {
+                setErrorMsg(fetchedInfo.message)
+                setTimeout(() => {
+                    setErrorMsg("")
+                }, 2000);
+                throw new Error(fetchedInfo.message)
+            }
+        } catch (error) {
+            if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }));
+            } else {
+                console.log(error);
+            }
+        }
+    }
     // Toogle register card
     const toggleRegister = () => {
         setShowLogin(false)
@@ -274,51 +312,57 @@ export const Header = () => {
             {/* Register Card */}
             <div onClick={(e) => hideCard(e)} className={showRegister ? "welcome-overlay" : 'hidden'}>
                 <CCard className={showRegister ? "card-register" : 'hidden'}>
-                    <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
-                    <div className="register-inputs">
-                        <div className="register-info">
-                            <CInput
-                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
-                                name={'avatar'}
-                                type={'file'}
-                                value={registerData.avatar || ""}
-                                placeholder={'input avatar'}
-                                onChange={(e) => inputHandler(e)}
-                                onBlur={(e) => checkError(e)}
-                            />
-                            <CInput
-                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
-                                name={'name'}
-                                type={'text'}
-                                value={registerData.name || ""}
-                                placeholder={'input name'}
-                                onChange={(e) => inputHandler(e)}
-                                onBlur={(e) => checkError(e)}
-                            />
-                            <CInput
-                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
-                                name={'email'}
-                                type={'text'}
-                                value={registerData.email || ""}
-                                placeholder={'input email'}
-                                onChange={(e) => inputHandler(e)}
-                                onBlur={(e) => checkError(e)}
-                            />
-                            <CInput
-                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
-                                name={'password'}
-                                type={'text'}
-                                value={registerData.password || ""}
-                                placeholder={'input password'}
-                                onChange={(e) => inputHandler(e)}
-                                onBlur={(e) => checkError(e)}
-                            />
+                    <form
+                        action="http://localhost:4000/api/file/avatar"
+                        encType="multipart/form-data"
+                        method="post"
+                    >
+                        <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
+                        <div className="register-inputs">
+                            <div className="register-info">
+                                <CInput
+                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
+                                    name={'avatar'}
+                                    type={'file'}
+                                    value={registerData.avatar || ""}
+                                    placeholder={'input avatar'}
+                                    onChange={(e) => inputHandler(e)}
+                                    onBlur={(e) => checkError(e)}
+                                />
+                                <CInput
+                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
+                                    name={'name'}
+                                    type={'text'}
+                                    value={registerData.name || ""}
+                                    placeholder={'input name'}
+                                    onChange={(e) => inputHandler(e)}
+                                    onBlur={(e) => checkError(e)}
+                                />
+                                <CInput
+                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
+                                    name={'email'}
+                                    type={'text'}
+                                    value={registerData.email || ""}
+                                    placeholder={'input email'}
+                                    onChange={(e) => inputHandler(e)}
+                                    onBlur={(e) => checkError(e)}
+                                />
+                                <CInput
+                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
+                                    name={'password'}
+                                    type={'password'}
+                                    value={registerData.password || ""}
+                                    placeholder={'input password'}
+                                    onChange={(e) => inputHandler(e)}
+                                    onBlur={(e) => checkError(e)}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div className="register-button">
-                        <CButton className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
-                        <CText title={errorMsg} />
-                    </div>
+                        <div className="register-button">
+                            <CButton className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
+                            <CText title={errorMsg} />
+                        </div>
+                    </form>
                 </CCard>
             </div>
         </div>

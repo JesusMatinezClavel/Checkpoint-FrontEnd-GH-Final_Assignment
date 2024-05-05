@@ -1,4 +1,6 @@
-const root = 'http://localhost:4000/api'
+
+
+export const root = 'http://localhost:4000/api'
 
 export const loginService = async (loginData) => {
     try {
@@ -56,7 +58,7 @@ export const uploadAvatarService = async (file) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data
