@@ -147,7 +147,8 @@ export const Header = () => {
         allErrorsCleared ? setErrorMsg("") : null
     }, [loginDataError, registerDataError])
 
-    // LOGIN CALL
+    /////// LOGIN
+    // Login Call
     const loginInput = async () => {
         try {
             const fetched = await loginService(loginData)
@@ -178,7 +179,6 @@ export const Header = () => {
             }
         }
     }
-
     // Toogle login card
     const toggleLogin = () => {
         setShowRegister(false)
@@ -196,6 +196,10 @@ export const Header = () => {
             )
     }
 
+
+    /////// REGISTER
+    // Register Call
+    
     // Toogle register card
     const toggleRegister = () => {
         setShowLogin(false)

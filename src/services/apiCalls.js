@@ -21,3 +21,25 @@ export const loginService = async (loginData) => {
         return error
     }
 }
+
+export const registerService = async (registerData) => {
+    try {
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'Application/json'
+            },
+            body: JSON.stringify(loginData)
+        }
+        const response = await fetch(`${root}/auth/register`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
