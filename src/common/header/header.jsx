@@ -196,7 +196,7 @@ export const Header = () => {
                 console.log(fetched);
                 navigate('/home')
             }
-
+            setShowLogin(false)
         } catch (error) {
             if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }));
@@ -245,6 +245,7 @@ export const Header = () => {
                 }, 2000);
                 throw new Error(Uploaded.message)
             }
+            setShowRegister(false)
         } catch (error) {
             if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }));

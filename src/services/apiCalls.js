@@ -66,3 +66,24 @@ export const uploadAvatarService = async (file) => {
         return error
     }
 }
+
+export const getAllUploadsService = async () => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/octet-binary'
+            }
+        }
+        const response = await fetch(`${root}/upload/all`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
