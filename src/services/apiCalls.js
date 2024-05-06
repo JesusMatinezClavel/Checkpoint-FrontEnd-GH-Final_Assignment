@@ -31,7 +31,7 @@ export const registerService = async (registerData) => {
             headers: {
                 'Content-Type': 'Application/json'
             },
-            body: JSON.stringify(loginData)
+            body: JSON.stringify(registerData)
         }
         const response = await fetch(`${root}/auth/register`, options)
         const data = await response.json()
@@ -48,11 +48,11 @@ export const registerService = async (registerData) => {
 
 export const uploadAvatarService = async (file) => {
     try {
-        const formData = new formData()
+        const formData = new FormData()
         formData.append("avatar", file)
         const options = {
             method: 'POST',
-            file: formData
+            body: formData
         }
         const response = await fetch(`${root}/file/avatar`, options)
         const data = await response.json()

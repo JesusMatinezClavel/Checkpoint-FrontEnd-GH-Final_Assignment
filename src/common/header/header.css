@@ -28,3 +28,28 @@
     justify-content: center;
     align-items: center; 
 }
+
+.uploadPhotoInput {
+    height: 13.4em;
+    width: 13.4em;
+
+    border-radius: .5em;
+
+    padding: 1em 1em;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.uploadPhotoInput img{
+    display: block;
+    height: auto;
+    width: 100%;
+    object-fit: cover;
+}
+
+.fileInputHidden {
+    display: none;
+}

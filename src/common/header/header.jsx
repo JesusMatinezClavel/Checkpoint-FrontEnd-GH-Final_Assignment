@@ -7,13 +7,14 @@ import { X } from "lucide-react";
 // Methods/Modules
 import { useState, useEffect } from "react";
 import { decodeToken } from "react-jwt";
+import { useNavigate } from "react-router-dom";
 
 // Redux
 import { useDispatch, useSelector } from "react-redux";
 import { userData, login, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { loginService, registerService } from '../../services/apiCalls';
+import { loginService, registerService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -24,6 +25,7 @@ import { CCard } from "../C-card/cCard";
 import { CInput } from "../C-input/cInput";
 import { CButton } from "../C-button/cButton";
 import { CText } from '../C-text/cText';
+import { Navigate } from 'react-router-dom';
 
 
 
@@ -31,6 +33,7 @@ import { CText } from '../C-text/cText';
 export const Header = () => {
 
     /////// INSTANCES
+    const navigate = useNavigate()
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
     const reader = new FileReader()
@@ -93,13 +96,13 @@ export const Header = () => {
                         file = e.target.files[0],
                         file
                             ? (
-                                setAvatarPreview(file),
-                                setRegisterData((prevState) => ({
-                                    ...prevState,
-                                    avatar: file.name
-                                })),
+                                setRegisterAvatar(file),
                                 reader.onload = (event) => {
-                                    setRegisterAvatar(event.target.result)
+                                    setAvatarPreview(event.target.result)
+                                    setRegisterData((prevState) => ({
+                                        ...prevState,
+                                        avatar: file.name
+                                    }))
                                 },
                                 reader.readAsDataURL(file)
                             ) : null
@@ -190,6 +193,8 @@ export const Header = () => {
                     userTokenData: decodedToken
                 }
                 dispatch(login({ credentials: passport }))
+                console.log(fetched);
+                navigate('/home')
             }
 
         } catch (error) {
@@ -217,18 +222,28 @@ export const Header = () => {
             )
     }
 
+    // console.log(registerAvatar);
 
     /////// REGISTER
     // Register Call
     const registerInput = async () => {
         try {
-            const fetchedInfo = await registerService(registerData)
-            if (!fetchedInfo.success) {
-                setErrorMsg(fetchedInfo.message)
+            const fetched = await registerService(registerData)
+            if (!fetched.success) {
+                setErrorMsg(fetched.message)
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
-                throw new Error(fetchedInfo.message)
+                throw new Error(fetched.message)
+            }
+
+            const Uploaded = await uploadAvatarService(registerAvatar)
+            if (!Uploaded.success) {
+                setErrorMsg(Uploaded.message)
+                setTimeout(() => {
+                    setErrorMsg("")
+                }, 2000);
+                throw new Error(Uploaded.message)
             }
         } catch (error) {
             if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
@@ -312,20 +327,29 @@ export const Header = () => {
             {/* Register Card */}
             <div onClick={(e) => hideCard(e)} className={showRegister ? "welcome-overlay" : 'hidden'}>
                 <CCard className={showRegister ? "card-register" : 'hidden'}>
+                    <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
                     <form
                         action="http://localhost:4000/api/file/avatar"
                         encType="multipart/form-data"
                         method="post"
                     >
-                        <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
                         <div className="register-inputs">
                             <div className="register-info">
+                                <label
+                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
+                                    htmlFor='photo'
+                                    className={'uploadPhotoInput'}
+                                    onChange={(e) => inputHandler(e)}
+                                    onBlur={(e) => checkError(e)}>
+                                    <img src={avatarPreview} alt="default-profileImg" />
+                                </label>
                                 <CInput
                                     disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
-                                    name={'avatar'}
-                                    type={'file'}
-                                    value={registerData.avatar || ""}
-                                    placeholder={'input avatar'}
+                                    className={'fileInputHidden'}
+                                    id={'photo'}
+                                    type={"file"}
+                                    name={"avatar"}
+                                    value={""}
                                     onChange={(e) => inputHandler(e)}
                                     onBlur={(e) => checkError(e)}
                                 />
@@ -359,7 +383,7 @@ export const Header = () => {
                             </div>
                         </div>
                         <div className="register-button">
-                            <CButton className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
+                            <CButton onClick={errorMsg === "" ? (e) => registerInput(e) : null} className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
                             <CText title={errorMsg} />
                         </div>
                     </form>
