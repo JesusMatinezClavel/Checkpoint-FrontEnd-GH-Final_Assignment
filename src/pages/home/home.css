@@ -1,5 +1,6 @@
 .home-design {
     min-height: 80vh;
+    height: auto;
     width: 100vw;
 
     background-color: rgb(206, 206, 206);

@@ -6,10 +6,10 @@ import { CButton } from "../../common/C-button/cButton";
 import { getAllUploadsService, getUploadFileService } from '../../services/apiCalls';
 import { login } from "../../app/slices/userSlice";
 
+import { MessageSquare, Heart, SquareLibrary } from "lucide-react";
+
 export const Home = () => {
     const [uploads, setUploads] = useState(null);
-    // const [selectedAsset, setSelectedAsset] = useState(null);
-    // const [openDetail, setOpenDetail] = useState(false)
     const [uploadsConverted, setUploadsConverted] = useState(null)
     const [loading, setLoading] = useState(true)
     const [asset, setAset] = useState('../../models/Brick.fbx')
@@ -32,35 +32,6 @@ export const Home = () => {
         }
     }, [uploads]);
 
-    // useEffect(() => {
-    //     if (uploadsConverted === null) {
-    //         try {
-    //             if (uploads !== null) {
-    //                 const files = []
-    //                 let loadedCount = 0
-    //                 for (const upload of uploads) {
-    //                     const getUploadFile = async () => {
-    //                         try {
-    //                             const fetchedFile = await getUploadFileService(upload.id)
-    //                             const uploadUrl = URL.createObjectURL(fetchedFile)
-    //                             files.push(uploadUrl)
-    //                             loadedCount++
-    //                             if (loadedCount === uploads.length) {
-    //                                 setUploadsConverted(files)
-    //                                 setLoading(false)
-    //                             }
-    //                         } catch (error) {
-    //                             console.log(error);
-    //                         }
-    //                     }
-    //                     getUploadFile()
-    //                 }
-    //             }
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     }
-    // }, [uploadsConverted])
 
     useEffect(() => {
         if (uploads && !uploadsConverted) {
@@ -81,35 +52,38 @@ export const Home = () => {
         }
     }, [uploads, uploadsConverted]);
 
-    // const viewDetail = (asset) => {
-    //     openDetail
-    //         ? setOpenDetail(false)
-    //         : setOpenDetail(true)
-    //     // setSelectedAsset(asset);
-    // };
-
     if (loading) {
         return (
             <div>cargando...</div>
         )
     }
-    // console.log(uploadsConverted);
+
+    console.log(uploads);
+
     return (
         <div className="home-design">
             <CCard className={'homeUploads-Card'}>
-                {uploadsConverted !== null && uploadsConverted.slice(0, 3).map((file, index) => (
+                {uploadsConverted !== null && uploadsConverted.slice(0, 9).map((file, index) => (
                     <CCard key={`${index}${uploads[index].name}`} className={'homeViewport-Card'}>
-                        <div className="homeViewport-info">
-                            <CText title={uploads[index].name} />
-                        </div>
+                        <CText title={uploads[index].name} />
                         <Viewer asset={file} />
+                        <div className="info">
+                            <div className="icons-info">
+                                <Heart />
+                                <CText className={'text-iconsInfo'} title={uploads[index].liked.length} />
+                            </div>
+                            <div className="icons-info">
+                                <MessageSquare />
+                                <CText className={'text-iconsInfo'} title={uploads[index].uploadComments.length} />
+                            </div>
+                            <div className="icons-info">
+                                <SquareLibrary />
+                                <CText className={'text-iconsInfo'} title={uploads[index].posts.length} />
+                            </div>
+                        </div>
                     </CCard>
                 ))}
             </CCard>
         </div>
     );
 };
-
-
-
-

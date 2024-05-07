@@ -4,7 +4,7 @@
 
     padding: .2em .2em;
 
-    background-color: aquamarine;
+    background-color: rgb(236, 236, 236);
 
     border-radius: .5em;
     border: .1em solid grey;
@@ -75,7 +75,14 @@
 }
 
 
-.homeUploads-Card{
+.homeUploads-Card {
+
+    border-radius: 0em;
+    border-bottom: 0em;
+    border-top: 0em;
+
+    background-color: rgb(233, 233, 233);
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -83,13 +90,32 @@
     flex-wrap: wrap;
 }
 
-.homeViewport-Card{
-    height: 15em;
-    width: 20em;
-
+.homeViewport-Card {
     margin: 1em;
-    
+
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.homeViewport-Card .info {
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.homeViewport-Card .info .icons-info {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    height: auto;
+    width: auto;
+
+    padding: .2em .2em;
+
 }

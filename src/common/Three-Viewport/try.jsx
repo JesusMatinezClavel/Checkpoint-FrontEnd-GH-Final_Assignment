@@ -1,3 +1,5 @@
+import './viewport.css'
+
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -31,8 +33,8 @@ export const Viewer = ({ key, asset }) => {
         // document.getElementsByClassName(`viewport3D`)[0].appendChild(renderer.domElement);
 
         const onWindowResize = () => {
-            cameraRef.aspect = window.innerWidth / window.innerHeight;
-            cameraRef.updateProjectionMatrix();
+            cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+            cameraRef.current.updateProjectionMatrix();
             renderer.setSize(window.innerWidth / 4, window.innerHeight / 4);
         };
 
