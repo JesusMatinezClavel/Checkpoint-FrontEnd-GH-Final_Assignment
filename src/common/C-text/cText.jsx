@@ -1,7 +1,7 @@
 import './cText.css'
 
-export const CText = ({ title,className }) => {
+export const CText = ({key,title,className }) => {
     return (
-        <div id="text-design" className={className}>{title}</div>
+        <div key={key} id="text-design" className={className}>{title}</div>
     )
 }

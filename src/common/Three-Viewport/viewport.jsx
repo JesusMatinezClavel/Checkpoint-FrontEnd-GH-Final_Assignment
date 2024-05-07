@@ -4,7 +4,6 @@ import './viewport.css'
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import stats from "three/examples/jsm/libs/stats.module.js";
 import WebGL from "three/addons/capabilities/WebGL.js";
 import { useEffect } from 'react';
 
@@ -17,7 +16,7 @@ export const Viewport = ({ asset }) => {
 
     if (!WebGL.isWebGLAvailable()) {
         const warning = WebGL.getWebGLErrorMessage();
-        document.getElementById('container').appendChild(warning);
+        console.log(warning);
         return;
     }
 
@@ -48,19 +47,8 @@ export const Viewport = ({ asset }) => {
 
         loader.load(defaultAsset,
             (object) => {
-                object.traverse((child) => {
-                    if (child.isMesh) {
-                        child.material = child.material
-                        if (child.material) {
-                            child.material.transparent = false
-                        }
-                    }
-                })
                 scene3D.add(object)
-                // setUploadPreviews((prevState) => ({
-                //     ...prevState,
-                //     object
-                // }))
+
 
                 const bbox = new THREE.Box3().setFromObject(object);
                 const objectSize = new THREE.Vector3();

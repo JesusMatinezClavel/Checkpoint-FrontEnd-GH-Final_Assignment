@@ -12,6 +12,7 @@ import { Body } from "./pages/body/body";
 import { Header } from './common/header/header';
 import { Footer } from './common/footer/footer';
 
+
 function App() {
   return (
     <>
