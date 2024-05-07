@@ -2,32 +2,11 @@
     min-height: 80vh;
     width: 100vw;
 
-    background-color: rgb(136, 165, 108);
+    background-color: rgb(206, 206, 206);
 
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.viewport {
-    border-radius:1em;
-    box-shadow: inset .2em .2em 2em .1em rgb(158, 151, 151);
-}
-
-.viewport3D {
-    height: auto;
-    width: auto;
-
-    padding: 1em 1em;
-    padding-bottom: 5em;
-    border-radius: 1em;
-
-    background-color: rgb(231, 231, 231);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-
-    margin: 1em;
+    flex-direction: row;
+    flex-wrap: wrap;
 }

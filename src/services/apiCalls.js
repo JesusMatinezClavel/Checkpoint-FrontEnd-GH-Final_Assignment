@@ -87,3 +87,26 @@ export const getAllUploadsService = async () => {
         return error
     }
 }
+
+export const getUploadFileService = async (uploadId) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'Application/octet-binary'
+            }
+        }
+    
+        const response = await fetch(`${root}/upload/download/${uploadId}`, options)
+
+        if(!response.ok){
+            throw new Error(response)
+        }
+    
+        const blob = await response.blob()
+
+        return blob
+    } catch (error) {
+        return error
+    }
+}
