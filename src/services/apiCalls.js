@@ -23,6 +23,26 @@ export const loginService = async (loginData) => {
         return error
     }
 }
+export const logoutService = async (token)=>{
+    try {
+        const options={
+            method:'POST',
+            headers:{
+                'Authorization':`Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/auth/logout`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
 
 export const registerService = async (registerData) => {
     try {
@@ -77,7 +97,7 @@ export const getAvatarService = async (filename, token) => {
         }
         const response = await fetch(`${root}/avatar/${filename}`, options)
         if (!response.ok) {
-            throw new Error('Network response was not ok')
+            throw new Error('Network response was not ok:', response.error)
         }
         const blob = await response.blob()
 

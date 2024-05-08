@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userData } from "../../app/slices/userSlice";
 
 // Api Calls
-import { getOwnProfileService } from '../../services/apiCalls';
+import { getAvatarService, getOwnProfileService } from '../../services/apiCalls';
 
 // Custom Methods
 
@@ -47,6 +47,10 @@ export const Profile = () => {
                 if (!userFetched.success) {
                     throw new Error(userFetched.message)
                 }
+                if (!userFetched.data.avatar.split(":")[0] === 'https') {
+                    const avatarFetched = await getAvatarService(userToken, userFetched.data.avatar)
+                    console.log(avatarFetched);
+                }
                 setUserInfo(userFetched.data)
                 setLoading(false)
             } catch (error) {
@@ -63,7 +67,7 @@ export const Profile = () => {
     }, [userInfo])
 
     /////////////////////////////////////////////////////////////////////// RETURN
-    console.log(userInfo)
+    // console.log(userInfo)
 
     return (
         <div className="profile-design">
