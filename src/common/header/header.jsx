@@ -27,9 +27,6 @@ import { CButton } from "../C-button/cButton";
 import { CText } from '../C-text/cText';
 import { Navigate } from 'react-router-dom';
 
-
-
-
 export const Header = () => {
 
     /////////////////////////////////////////////////////////////////////// INSTANCES
@@ -221,22 +218,11 @@ export const Header = () => {
             )
     }
 
-    // console.log(registerAvatar);
-
     /////////////////////////////////////////////////////////////////////// REGISTER
 
     // Register Call
     const registerInput = async () => {
         try {
-            const fetched = await registerService(registerData)
-            if (!fetched.success) {
-                setErrorMsg(fetched.message)
-                setTimeout(() => {
-                    setErrorMsg("")
-                }, 2000);
-                throw new Error(fetched.message)
-            }
-
             const Uploaded = await uploadAvatarService(registerAvatar)
             if (!Uploaded.success) {
                 setErrorMsg(Uploaded.message)
@@ -244,6 +230,14 @@ export const Header = () => {
                     setErrorMsg("")
                 }, 2000);
                 throw new Error(Uploaded.message)
+            }
+            const fetched = await registerService(registerData)
+            if (!fetched.success) {
+                setErrorMsg(fetched.message)
+                setTimeout(() => {
+                    setErrorMsg("")
+                }, 2000);
+                throw new Error(fetched.message)
             }
             setShowRegister(false)
         } catch (error) {
@@ -286,6 +280,13 @@ export const Header = () => {
             ) : null
     }
 
+    /////////////////////////////////////////////////////////////////////// PROFILE
+
+    const goToProfile = () => {
+        navigate('/profile')
+    }
+
+
     return (
         <div className="header-design">
             <div className="separator-header"></div>
@@ -293,7 +294,7 @@ export const Header = () => {
                 rdxUser.credentials.userToken
                     ? (
                         <div className="buttons-logged">
-                            <CButton className={'button-profile'} title={`${rdxUser.credentials.userTokenData.userName}`} />
+                            <CButton className={'button-profile'} title={`${rdxUser.credentials.userTokenData.userName}`} onClick={() => goToProfile()} />
                             <CButton className={'button-upload'} title={'upload'} />
                         </div>
                     )

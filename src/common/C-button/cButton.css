@@ -3,13 +3,15 @@
     width: auto;
     padding: .5em 1em;
 
-    background-color: aliceblue;
+    background-color: #cccccc;
 
     border-radius: .5em;
     border: .1em solid grey;
 
     &:hover {
-        background-color: rgb(181, 191, 201);
+        background-color: #cccccc;
+
+        color: #292c37;
     }
 
     &:active {
@@ -45,7 +47,9 @@
 .button-upload {
     height: 2em;
     width: 5em;
-    background-color: aqua;
+    background-color:#292c37;
+
+    color: #cccccc;
 
     display: flex;
     justify-content: center;
@@ -58,7 +62,7 @@
     height: 10em;
     width: 10em;
 
-    background-color: aliceblue;
+    background-color: #cccccc;
 
     &:active {
         transform: translateY(.2em)
