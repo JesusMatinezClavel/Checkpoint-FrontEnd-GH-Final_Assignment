@@ -74,14 +74,13 @@
     flex-direction: column;
 }
 
-
 .homeUploads-Card {
 
     border-radius: 0em;
     border-bottom: 0em;
     border-top: 0em;
 
-    background-color: rgb(233, 233, 233);
+    background-color: #cccccc;
 
     display: flex;
     justify-content: center;
@@ -149,4 +148,37 @@
     height: auto;
     width: 100%;
     object-fit: cover;
+}
+
+.user-card,
+.uploads-card,
+.posts-card {
+    min-height: 80vh;
+
+    background-color: #cccccc;
+}
+
+.user-card,
+.posts-card {
+    width: 19vw;
+}
+
+.profileAvatar {
+    height: 5em;
+    width: 5em;
+
+    
+}
+
+.profileAvatar img {
+    border-radius: 100%;
+    display: block;
+    height: auto;
+    width: 100%;
+    object-fit: cover;
+
+}
+
+.uploads-card {
+    width: 59vw;
 }

@@ -66,6 +66,28 @@ export const uploadAvatarService = async (file) => {
         return error
     }
 }
+
+export const getAvatarService = async (filename, token) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/avatar/${filename}`, options)
+        if (!response.ok) {
+            throw new Error('Network response was not ok')
+        }
+        const blob = await response.blob()
+
+        const url = window.URL.createObjectURL(blob)
+
+        return url
+    } catch (error) {
+        return error
+    }
+}
 export const getAllUploadsService = async () => {
     try {
         const options = {
@@ -110,7 +132,7 @@ export const getUploadFileService = async (uploadId) => {
 }
 
 
-export const getProfileService = async (token, userId = null) => {
+export const getOwnProfileService = async (token) => {
     try {
         const options = {
             method: 'GET',
@@ -119,7 +141,7 @@ export const getProfileService = async (token, userId = null) => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await fetch(`${root}/user/profile/${userId}`, options)
+        const response = await fetch(`${root}/user/profile/`, options)
         const data = await response.json()
 
         if (!data.success) {

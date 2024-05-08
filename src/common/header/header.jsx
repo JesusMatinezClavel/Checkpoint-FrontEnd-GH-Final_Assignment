@@ -286,6 +286,7 @@ export const Header = () => {
         navigate('/profile')
     }
 
+    /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="header-design">

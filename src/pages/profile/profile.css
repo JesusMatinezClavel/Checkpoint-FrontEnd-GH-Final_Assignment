@@ -2,9 +2,10 @@
     min-height: 80vh;
     width: 100vw;
 
-    background-color: rgb(135, 85, 145);
+    background-color: rgb(235, 235, 235);
 
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
+    flex-direction: row;
 }
