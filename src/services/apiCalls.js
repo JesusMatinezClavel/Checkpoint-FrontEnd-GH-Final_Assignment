@@ -95,17 +95,19 @@ export const getAvatarService = async (filename, token) => {
                 'Authorization': `Bearer ${token}`
             }
         }
-        const response = await fetch(`${root}/avatar/${filename}`, options)
-        if (!response.ok) {
-            throw new Error('Network response was not ok:', response.error)
-        }
+        const response = await fetch(`${root}/file/avatar/${filename}`, options)
+        console.log(response);
+        // if (!response.ok) {
+        //     throw new Error('Network response was not ok:', response.statusText)
+        // }
         const blob = await response.blob()
 
         const url = window.URL.createObjectURL(blob)
 
         return url
     } catch (error) {
-        return error
+        console.error('Error fetching avatar:', error);
+        return error;
     }
 }
 export const getAllUploadsService = async () => {

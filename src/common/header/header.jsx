@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userData, login, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { loginService, registerService, uploadAvatarService } from '../../services/apiCalls';
+import { loginService, logoutService, registerService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -33,6 +33,7 @@ export const Header = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
+    const userToken = rdxUser.credentials.userToken
     const reader = new FileReader()
     let file
 
@@ -217,6 +218,20 @@ export const Header = () => {
                 })
             )
     }
+    /////////////////////////////////////////////////////////////////////// LOGOUT
+    // Logout Call
+    const logoutInput = async () => {
+        try {
+            const fetched = await logoutService(userToken)
+            if (!fetched.success) {
+                throw new Error(fetched.message)
+            }
+            dispatch(logout({ credentials: {} }))
+            navigate('/')
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     /////////////////////////////////////////////////////////////////////// REGISTER
 
@@ -240,6 +255,7 @@ export const Header = () => {
                 throw new Error(fetched.message)
             }
             setShowRegister(false)
+            setShowLogin(true)
         } catch (error) {
             if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }));
@@ -261,7 +277,8 @@ export const Header = () => {
                 setRegisterDataError({
                     emailError: "",
                     passwordError: ""
-                }))
+                })),
+                setAvatarPreview('../../../img/default-ProfileImg.png')
     }
 
     // Hide Cards when clicking outside
@@ -297,6 +314,7 @@ export const Header = () => {
                         <div className="buttons-logged">
                             <CButton className={'button-profile'} title={`${rdxUser.credentials.userTokenData.userName}`} onClick={() => goToProfile()} />
                             <CButton className={'button-upload'} title={'upload'} />
+                            <CButton className={'button-logout'} title={'logout'} onClick={() => logoutInput()} />
                         </div>
                     )
                     : (

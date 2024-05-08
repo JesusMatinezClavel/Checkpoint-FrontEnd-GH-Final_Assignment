@@ -44,7 +44,8 @@
 .button-loggin,
 .button-register,
 .button-profile,
-.button-upload {
+.button-upload,
+.button-logout {
     height: 2em;
     width: 5em;
     background-color:#292c37;
