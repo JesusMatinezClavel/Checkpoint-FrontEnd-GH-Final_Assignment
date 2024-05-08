@@ -43,6 +43,7 @@ export const Header = () => {
     const [errorMsg, setErrorMsg] = useState("")
 
 
+
     // Login Data
     const [registerData, setRegisterData] = useState({
         avatar: "",
@@ -70,7 +71,7 @@ export const Header = () => {
     })
 
     /////////////////////////////////////////////////////////////////////// LOGIC
-
+console.log(registerAvatar);
     // Change document title
     useEffect(() => {
         document.title = "Welcome";
@@ -238,13 +239,13 @@ export const Header = () => {
     // Register Call
     const registerInput = async () => {
         try {
-            const Uploaded = await uploadAvatarService(registerAvatar)
+            const Uploaded = await uploadAvatarService(registerAvatar,registerData.email)
             if (!Uploaded.success) {
                 setErrorMsg(Uploaded.message)
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
-                throw new Error(Uploaded.message)
+                throw new Error(Uploaded.error)
             }
             const fetched = await registerService(registerData)
             if (!fetched.success) {

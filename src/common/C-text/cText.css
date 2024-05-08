@@ -36,3 +36,9 @@
     
     border-bottom: .1em solid #cccccc;
 }
+
+.text-comment{
+    display: flex;
+    justify-content: center;
+    align-items: start;  
+}

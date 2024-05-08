@@ -23,12 +23,12 @@ export const loginService = async (loginData) => {
         return error
     }
 }
-export const logoutService = async (token)=>{
+export const logoutService = async (token) => {
     try {
-        const options={
-            method:'POST',
-            headers:{
-                'Authorization':`Bearer ${token}`
+        const options = {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
         }
         const response = await fetch(`${root}/auth/logout`, options)
@@ -66,7 +66,7 @@ export const registerService = async (registerData) => {
     }
 }
 
-export const uploadAvatarService = async (file) => {
+export const uploadAvatarService = async (file, email) => {
     try {
         const formData = new FormData()
         formData.append("avatar", file)
@@ -152,7 +152,6 @@ export const getUploadFileService = async (uploadId) => {
         return error
     }
 }
-
 
 export const getOwnProfileService = async (token) => {
     try {

@@ -19,7 +19,7 @@ import { getAvatarService, getOwnProfileService, getUploadFileService } from '..
 // Custom Elements
 import { CCard } from "../../common/C-card/cCard"
 import { CText } from "../../common/C-text/cText";
-import { Viewer } from "../../common/Three-Viewport/try";
+import { Viewport } from "../../common/Three-Viewport/viewport";
 
 
 
@@ -37,8 +37,7 @@ export const Profile = () => {
     const [userAvatar, setUserAvatar] = useState(null)
     const [loading, setLoading] = useState({
         infoLoading: true,
-        uploadLoading: true,
-        postLoading: true
+        uploadLoading: true
     })
 
     /////////////////////////////////////////////////////////////////////// LOGIC
@@ -108,29 +107,12 @@ export const Profile = () => {
         }
     }, [userInfo, userUploads])
 
+    console.log(userInfo);
+
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="profile-design">
-            <div className="user-card">
-                {
-                    loading.infoLoading
-                        ? ('loading')
-                        : (
-                            <CCard className={'userInfo-Card'}>
-                                <div className="profileAvatar">
-                                    <img src={userAvatar} alt="" />
-                                </div>
-                                <CText className={'text-infoTitle'} title={'name'} />
-                                <CText className={'text-userInfo'} title={userInfo.name} />
-                                <CText className={'text-infoTitle'} title={'biography'} />
-                                <CText className={'text-userInfo'} title={userInfo.bio} />
-                                <CText className={'text-infoTitle'} title={'email'} />
-                                <CText className={'text-userInfo'} title={userInfo.email} />
-                            </CCard>
-                        )
-                }
-            </div>
             <div className="uploads-card">
                 {
                     loading.uploadLoading
@@ -138,10 +120,12 @@ export const Profile = () => {
                         : (
                             userUploads !== null
                                 ? (
-                                    <CCard>
+                                    <CCard className={'userUploads-card'}>
                                         {
-                                            userUploads.map((upload) => {
-                                                <Viewer asset={upload} />
+                                            userUploads.map((upload, index) => {
+                                                return (
+                                                    <Viewport key={`${index}-${userInfo.name}`} asset={upload} />
+                                                )
                                             })
                                         }
                                     </CCard>
@@ -152,16 +136,37 @@ export const Profile = () => {
                         )
                 }
             </div>
-            <div className="posts-card">
+            <div className="user-card">
                 {
-                    loading.postLoading
+                    loading.infoLoading
                         ? ('loading')
                         : (
-                            <CCard>
-                                {/* <img src={userInfo.avatar} alt="" /> */}
-                                {/* <CText title={userInfo.name} />
-                            <CText title={userInfo.bio} />
-                            <CText title={userInfo.bio} /> */}
+                            <CCard className={'userInfo-Card'}>
+                                {
+                                    userInfo.avatar !== `${userInfo.name}-undefined`
+                                    ? (
+                                        <div className="author-avatar">
+                                        <img 
+                                            src={userInfo.avatar} 
+                                            alt={`${userInfo.name}'s avatar`} 
+                                            onError={(e) => { 
+                                                e.target.onerror = null; 
+                                                e.target.style.display = 'none';
+                                                e.target.nextElementSibling.style.display = 'flex'; 
+                                            }}
+                                        />
+                                        <div className="noAvatar" style={{display: 'none'}}>{userInfo.name.split("")[0].toUpperCase()}</div>
+                                    </div>
+                                    ):(
+                                        <div className="noAvatar Profile">{userInfo.name.split("")[0].toUpperCase()}</div>
+                                    )
+                                }
+                                <CText className={'text-infoTitle'} title={'name'} />
+                                <CText className={'text-userInfo'} title={userInfo.name} />
+                                <CText className={'text-infoTitle'} title={'biography'} />
+                                <CText className={'text-userInfo'} title={userInfo.bio} />
+                                <CText className={'text-infoTitle'} title={'email'} />
+                                <CText className={'text-userInfo'} title={userInfo.email} />
                             </CCard>
                         )
                 }
