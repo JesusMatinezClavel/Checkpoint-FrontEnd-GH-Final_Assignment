@@ -40,7 +40,9 @@
 }
 
 .button-loggin,
-.button-register {
+.button-register,
+.button-profile,
+.button-upload {
     height: 2em;
     width: 5em;
     background-color: aqua;

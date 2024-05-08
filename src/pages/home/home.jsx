@@ -58,14 +58,17 @@ export const Home = () => {
         )
     }
 
-    console.log(uploads);
-
     return (
         <div className="home-design">
             <CCard className={'homeUploads-Card'}>
                 {uploadsConverted !== null && uploadsConverted.slice(0, 9).map((file, index) => (
                     <CCard key={`${index}${uploads[index].name}`} className={'homeViewport-Card'}>
-                        <CText title={uploads[index].name} />
+                        <div className="author">
+                            <div className="author-avatar">
+                                <img src={uploads[index].user.avatar} alt="" />
+                            </div>
+                            <CText title={uploads[index].name} />
+                        </div>
                         <Viewer asset={file} />
                         <div className="info">
                             <div className="icons-info">

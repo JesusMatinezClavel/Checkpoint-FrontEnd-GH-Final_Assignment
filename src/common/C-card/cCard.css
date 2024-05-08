@@ -117,5 +117,36 @@
     width: auto;
 
     padding: .2em .2em;
+}
 
+.homeViewport-Card .author {
+    height: 5em;
+    width: 90%;
+
+    border-radius: .5em;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
+
+.homeViewport-Card .author-avatar {
+    height: 4em;
+    width: 4em;
+
+    border-radius: 100%;
+    border: .1em solid black;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.homeViewport-Card .author-avatar img {
+    border-radius: 100%;
+    display: block;
+    height: auto;
+    width: 100%;
+    object-fit: cover;
 }

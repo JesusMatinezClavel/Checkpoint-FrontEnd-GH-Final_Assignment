@@ -19,6 +19,14 @@
     transform: translateY(.1em);
 }
 
+.buttons-logged,
+.buttons-not-logged {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
 .welcome-overlay {
     position: fixed;
     top: 0;
