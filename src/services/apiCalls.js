@@ -66,7 +66,6 @@ export const uploadAvatarService = async (file) => {
         return error
     }
 }
-
 export const getAllUploadsService = async () => {
     try {
         const options = {
@@ -87,7 +86,6 @@ export const getAllUploadsService = async () => {
         return error
     }
 }
-
 export const getUploadFileService = async (uploadId) => {
     try {
         const options = {
@@ -96,16 +94,39 @@ export const getUploadFileService = async (uploadId) => {
                 'Content-Type': 'Application/octet-binary'
             }
         }
-    
+
         const response = await fetch(`${root}/upload/download/${uploadId}`, options)
 
-        if(!response.ok){
+        if (!response.ok) {
             throw new Error(response)
         }
-    
+
         const blob = await response.blob()
 
         return blob
+    } catch (error) {
+        return error
+    }
+}
+
+
+export const getProfileService = async (token, userId = null) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'Application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/user/profile/${userId}`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
     } catch (error) {
         return error
     }
