@@ -91,18 +91,19 @@ export const createNewUpload = async (token, uploadData) => {
     try {
         const options = {
             method: 'POST',
-            Headers: {
-                'Conten-type': 'Application/json',
-                'Authorization': `Bearer ${token}`
+            headers: {
+                'Content-type': 'application/json',
+                'authorization': `Bearer ${token}`
             },
             body: JSON.stringify(uploadData)
         }
-        const response = await fetch(`${root}//upload/upload`, options)
+        console.log(options);
+        const response = await fetch(`${root}/upload/upload`, options)
 
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.message)
+            throw new Error(data.error)
         }
 
         return data

@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userData, login, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { loginService, logoutService, registerService, uploadAvatarService, uploadModelService } from '../../services/apiCalls';
+import { createNewUpload, loginService, logoutService, registerService, uploadAvatarService, uploadModelService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -144,10 +144,8 @@ export const Header = () => {
                             ? (
                                 file.name.endsWith('fbx')
                                     ? (
-                                        newFileName = `${rdxUser.credentials.userTokenData.userName}-${file.name}`,
-                                        newFile = new File([file], newFileName, { type: file.type }),
-                                        setUploadFile(newFile),
-                                        setUploadFileUrl(URL.createObjectURL(newFile)),
+                                        setUploadFile(file),
+                                        setUploadFileUrl(URL.createObjectURL(file)),
                                         console.log('Setting up reader.onload'),
                                         reader.onload = (event) => {
                                             console.log('onload fired');
@@ -422,21 +420,23 @@ export const Header = () => {
                 }, 2000);
                 throw new Error(uploaded.error)
             }
-            // const fetched = await registerService(registerData)
-            // if (!fetched.success) {
-            //     setErrorMsg(fetched.message)
-            //     setTimeout(() => {
-            //         setErrorMsg("")
-            //     }, 2000);
-            //     throw new Error(fetched.message)
-            // }
+            const fetched = await createNewUpload(userToken, uploadData)
+            console.log(fetched);
+            if (!fetched.success) {
+                setErrorMsg(fetched.message)
+                setTimeout(() => {
+                    setErrorMsg("")
+                }, 2000);
+                throw new Error(fetched.error)
+            }
             setShowUpload(false)
         } catch (error) {
-            if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
-                dispatch(logout({ credentials: {} }));
-            } else {
+            // if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
+            //     dispatch(logout({ credentials: {} }));
+            //     navigate('/')
+            // } else {
                 console.log(error);
-            }
+            // }
         }
     }
 
