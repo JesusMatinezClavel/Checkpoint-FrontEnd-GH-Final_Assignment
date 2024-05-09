@@ -107,8 +107,6 @@ export const Profile = () => {
         }
     }, [userInfo, userUploads])
 
-    console.log(userInfo);
-
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (

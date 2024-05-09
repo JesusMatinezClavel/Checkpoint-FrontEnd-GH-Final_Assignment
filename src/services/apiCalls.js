@@ -66,7 +66,7 @@ export const registerService = async (registerData) => {
     }
 }
 
-export const uploadAvatarService = async (file, email) => {
+export const uploadAvatarService = async (file) => {
     try {
         const formData = new FormData()
         formData.append("avatar", file)
@@ -139,7 +139,7 @@ export const getUploadFileService = async (uploadId) => {
             }
         }
 
-        const response = await fetch(`${root}/upload/download/${uploadId}`, options)
+        const response = await fetch(`${root}/file/download/${uploadId}`, options)
 
         if (!response.ok) {
             throw new Error(response)

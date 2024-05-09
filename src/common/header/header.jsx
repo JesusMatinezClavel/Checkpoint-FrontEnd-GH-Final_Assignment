@@ -20,12 +20,11 @@ import { loginService, logoutService, registerService, uploadAvatarService } fro
 import { validate } from "../../utils/validator";
 
 // Custom Elements
-import { Navigator } from "../navigator/navigator";
 import { CCard } from "../C-card/cCard";
 import { CInput } from "../C-input/cInput";
 import { CButton } from "../C-button/cButton";
 import { CText } from '../C-text/cText';
-import { Navigate } from 'react-router-dom';
+import { Viewport } from "../Three-Viewport/viewport";
 
 export const Header = () => {
 
@@ -40,9 +39,25 @@ export const Header = () => {
     /////////////////////////////////////////////////////////////////////// HOOKS
     const [showLogin, setShowLogin] = useState(false)
     const [showRegister, setShowRegister] = useState(false)
+    const [showUpload, setShowUpload] = useState(false)
     const [errorMsg, setErrorMsg] = useState("")
 
-
+    // Upload Data
+    const [uploadData, setUploadData] = useState({
+        name: "",
+        description: "",
+        downloadable: false,
+        file: null
+    })
+    const [uploadDataError, setUploadDataError] = useState({
+        nameError: "",
+        descriptionError: "",
+        downloadableError: false,
+        fileError: null
+    })
+    const [uploadFile, setUploadFile] = useState(null)
+    const [uploadFileUrl, setUploadFileUrl] = useState(null)
+    const [resetViewport, setResetViewport] = useState(false)
 
     // Login Data
     const [registerData, setRegisterData] = useState({
@@ -71,11 +86,13 @@ export const Header = () => {
     })
 
     /////////////////////////////////////////////////////////////////////// LOGIC
-console.log(registerAvatar);
     // Change document title
     useEffect(() => {
         document.title = "Welcome";
     }, [])
+    useEffect(() => {
+        console.log(uploadData);
+    }, [uploadData])
 
     // Input Handler
     const inputHandler = (e) => {
@@ -115,6 +132,50 @@ console.log(registerAvatar);
             )
             : null
 
+        showUpload
+            ? (
+                e.target.files
+                    ? (
+                        file = e.target.files[0],
+                        file
+                            ? (
+                                setUploadFile(file),
+                                setUploadFileUrl(URL.createObjectURL(file)),
+                                console.log('Setting up reader.onload'),
+                                reader.onload = (event) => {
+                                    console.log('onload fired');
+                                    const base64String = event.target.result.split(',')[1];
+                                    const binaryString = window.atob(base64String);
+                                    const len = binaryString.length;
+                                    const bytes = new Uint8Array(len);
+                                    for (let i = 0; i < len; i++) {
+                                        bytes[i] = binaryString.charCodeAt(i);
+                                    }
+                                    setUploadData((prevState) => ({
+                                        ...prevState,
+                                        file: bytes
+                                    }))
+                                },
+                                console.log('Calling readAsDataURL'),
+                                reader.readAsDataURL(file)
+                            )
+                            : null
+                    )
+                    : e.target.name !== 'downloadable'
+                        ? (
+                            setUploadData((prevState) => ({
+                                ...prevState,
+                                [e.target.name]: e.target.value
+                            }))
+                        )
+                        : (
+                            setUploadData((prevState) => ({
+                                ...prevState,
+                                downloadable: e.target.checked
+                            }))
+                        )
+            )
+            : null
         if (e.target.value === "") {
             setErrorMsg("")
         }
@@ -239,7 +300,7 @@ console.log(registerAvatar);
     // Register Call
     const registerInput = async () => {
         try {
-            const Uploaded = await uploadAvatarService(registerAvatar,registerData.email)
+            const Uploaded = await uploadAvatarService(registerAvatar)
             if (!Uploaded.success) {
                 setErrorMsg(Uploaded.message)
                 setTimeout(() => {
@@ -279,7 +340,7 @@ console.log(registerAvatar);
                     emailError: "",
                     passwordError: ""
                 })),
-                setAvatarPreview('../../../img/default-ProfileImg.png')
+            setAvatarPreview('../../../img/default-ProfileImg.png')
     }
 
     // Hide Cards when clicking outside
@@ -296,12 +357,49 @@ console.log(registerAvatar);
                     ? setShowRegister(false)
                     : null
             ) : null
+        showUpload
+            ? (
+                e.target.classList[0] === 'welcome-overlay'
+                    ? (
+                        setShowUpload(false),
+                        setResetViewport(true)
+                    )
+                    : null
+            ) : null
     }
 
     /////////////////////////////////////////////////////////////////////// PROFILE
 
     const goToProfile = () => {
         navigate('/profile')
+    }
+
+    /////////////////////////////////////////////////////////////////////// UPLOAD
+
+    const toggleUpload = () => {
+        showUpload
+            ? (
+                setShowUpload(false),
+                setResetViewport(false)
+            )
+            : (
+                setUploadData({
+                    name: "",
+                    description: "",
+                    downloadable: false,
+                    file: null
+                }),
+                setUploadDataError({
+                    nameError: "",
+                    descriptionError: "",
+                    downloadableError: false,
+                    fileError: null
+                }),
+                setUploadFile(null),
+                setUploadFileUrl(null),
+                setResetViewport(true),
+                setShowUpload(true)
+            )
     }
 
     /////////////////////////////////////////////////////////////////////// RETURN
@@ -313,9 +411,71 @@ console.log(registerAvatar);
                 rdxUser.credentials.userToken
                     ? (
                         <div className="buttons-logged">
-                            <CButton className={'button-profile'} title={`${rdxUser.credentials.userTokenData.userName}`} onClick={() => goToProfile()} />
-                            <CButton className={'button-upload'} title={'upload'} />
-                            <CButton className={'button-logout'} title={'logout'} onClick={() => logoutInput()} />
+                            <CButton className={'button-profile'}
+                                title={`${rdxUser.credentials.userTokenData.userName}`}
+                                onClick={() => goToProfile()}
+                            />
+                            <CButton
+                                className={'button-upload'}
+                                title={'upload'}
+                                onClick={() => toggleUpload()}
+                            />
+                            <CButton
+                                className={'button-logout'}
+                                title={'logout'}
+                                onClick={() => logoutInput()}
+                            />
+                            {/* Upload Card */}
+                            <div onClick={(e) => hideCard(e)} className={showUpload ? 'welcome-overlay' : 'hidden'}>
+                                <CCard className={showUpload ? "card-upload" : 'hidden'}>
+                                    <div className="closeCard"><X onClick={() => toggleUpload()} className='icon-closeCard' /></div>
+                                    <div className="upload-inputs">
+                                        <div className="upload-info">
+                                            <CInput
+                                                disabled={errorMsg === "" ? false : errorMsg === uploadDataError.nameError ? false : true}
+                                                name={'name'}
+                                                type={'text'}
+                                                value={uploadData.name || ""}
+                                                placeholder={'input name'}
+                                                onChange={(e) => inputHandler(e)}
+                                                onBlur={(e) => checkError(e)}
+                                            />
+                                            <CInput
+                                                disabled={errorMsg === "" ? false : errorMsg === uploadData.description ? false : true}
+                                                name={'description'}
+                                                type={'textarea'}
+                                                value={uploadData.description || ""}
+                                                placeholder={'input description'}
+                                                onChange={(e) => inputHandler(e)}
+                                                onBlur={(e) => checkError(e)}
+                                            />
+                                            <CInput
+                                                disabled={errorMsg === "" ? false : errorMsg === uploadData.file ? false : true}
+                                                name={'file'}
+                                                type={'file'}
+                                                value={""}
+                                                onChange={(e) => inputHandler(e)}
+                                                onBlur={(e) => checkError(e)}
+                                            />
+                                            {
+                                                showUpload && <Viewport asset={uploadFileUrl} reset={resetViewport} />
+                                            }
+                                            <CInput
+                                                disabled={errorMsg === "" ? false : errorMsg === uploadData.downloadable ? false : true}
+                                                name={'downloadable'}
+                                                type={'checkbox'}
+                                                value={uploadData.downloadable}
+                                                onChange={(e) => inputHandler(e)}
+                                                onBlur={(e) => checkError(e)}
+                                            />
+                                            <div className="login-button">
+                                                <CButton className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                                                <CText title={errorMsg} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CCard>
+                            </div>
                         </div>
                     )
                     : (

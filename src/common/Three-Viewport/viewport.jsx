@@ -6,12 +6,21 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useEffect, useRef } from 'react';
 import { LoadingManager } from 'three';
 
-export const Viewport = ({ onClick, asset }) => {
+export const Viewport = ({ onClick, asset, reset }) => {
     const canvasRef = useRef(null)
     const rendererRef = useRef(null);
     const sceneRef = useRef(new THREE.Scene())
     const cameraRef = useRef(new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000))
     const lightRef = useRef(new THREE.PointLight(0xffffff, 10000))
+
+    useEffect(() => {
+        // Clear the scene
+        sceneRef.current.remove(sceneRef.current.children[0]);
+
+        // Optionally, reset camera and light positions if needed
+        cameraRef.current.position.set(20, 20, 50);
+        lightRef.current.position.set(20, 50, 50);
+    }, [reset]);
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -89,5 +98,7 @@ export const Viewport = ({ onClick, asset }) => {
         });
     }, [asset]);
 
-    return <canvas onClick={onClick} ref={canvasRef} />;
+
+
+    return <canvas onClick={onClick} ref={canvasRef} reset={reset ? reset.toString() : undefined} />;
 };
