@@ -49,6 +49,8 @@ export const Profile = () => {
             : (document.title = `${rdxUser?.credentials?.userTokenData?.userName}'s Profile`)
     }, [])
 
+    console.log(userInfo);
+
     // Get Profile
     useEffect(() => {
         const getProfile = async () => {
@@ -57,16 +59,11 @@ export const Profile = () => {
                 if (!userFetched.success) {
                     throw new Error(userFetched.message)
                 }
-                // if(!userFetched.data.isActive){
-
+                const avatarFetched = await getAvatarService(userFetched.data.avatar.split("-")[1], userToken)
+                // if (!avatarFetched.ok) {
+                //     throw new Error(avatarFetched.error)
                 // }
-                if (userFetched.data.avatar.split(":")[0] !== 'https') {
-                    const avatarFetched = await getAvatarService(userFetched.data.avatar.split("-")[1], userToken)
-                    // if (!avatarFetched.ok) {
-                    //     throw new Error(avatarFetched.error)
-                    // }
-                    setUserAvatar(avatarFetched)
-                }
+                setUserAvatar(avatarFetched)
                 setUserInfo(userFetched.data)
                 setLoading((prevState) => ({
                     ...prevState,
@@ -90,6 +87,7 @@ export const Profile = () => {
             Promise.all(userInfo.uploads.map(async (upload) => {
                 try {
                     const fetchedFile = await getUploadFileService(upload.id);
+                    console.log("vamos: ",fetchedFile);
                     const uploadUrl = URL.createObjectURL(fetchedFile);
                     return uploadUrl;
                 } catch (error) {
@@ -142,22 +140,22 @@ export const Profile = () => {
                             <CCard className={'userInfo-Card'}>
                                 {
                                     userInfo.avatar !== `${userInfo.name}-undefined`
-                                    ? (
-                                        <div className="author-avatar">
-                                        <img 
-                                            src={userInfo.avatar} 
-                                            alt={`${userInfo.name}'s avatar`} 
-                                            onError={(e) => { 
-                                                e.target.onerror = null; 
-                                                e.target.style.display = 'none';
-                                                e.target.nextElementSibling.style.display = 'flex'; 
-                                            }}
-                                        />
-                                        <div className="noAvatar" style={{display: 'none'}}>{userInfo.name.split("")[0].toUpperCase()}</div>
-                                    </div>
-                                    ):(
-                                        <div className="noAvatar Profile">{userInfo.name.split("")[0].toUpperCase()}</div>
-                                    )
+                                        ? (
+                                            <div className="author-avatar">
+                                                <img
+                                                    src={userAvatar}
+                                                    alt={`${userInfo.name}'s avatar`}
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.style.display = 'none';
+                                                        e.target.nextElementSibling.style.display = 'flex';
+                                                    }}
+                                                />
+                                                <div className="noAvatar" style={{ display: 'none' }}>{userInfo.name.split("")[0].toUpperCase()}</div>
+                                            </div>
+                                        ) : (
+                                            <div className="noAvatar Profile">{userInfo.name.split("")[0].toUpperCase()}</div>
+                                        )
                                 }
                                 <CText className={'text-infoTitle'} title={'name'} />
                                 <CText className={'text-userInfo'} title={userInfo.name} />

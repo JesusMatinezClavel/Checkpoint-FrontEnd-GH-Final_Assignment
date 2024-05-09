@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
 import { LoadingManager } from "three";
 import { Viewport } from "../../common/Three-Viewport/viewport";
 import { CCard } from "../../common/C-card/cCard";
@@ -8,12 +7,13 @@ import { CButton } from "../../common/C-button/cButton";
 import { getAllUploadsService, getUploadFileService } from '../../services/apiCalls';
 import { login } from "../../app/slices/userSlice";
 
-import { MessageSquare, Heart, SquareLibrary } from "lucide-react";
+import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
 import { CInput } from "../../common/C-input/cInput";
 
 export const Home = () => {
     const [uploads, setUploads] = useState(null)
     const [uploadsConverted, setUploadsConverted] = useState(null)
+    const [uplloadsDownload, setUploadsDownload] = useState(null)
     const [loading, setLoading] = useState(true)
     const [asset, setAset] = useState('../../models/Brick.fbx')
     const [toggleViewport, setToggleViewport] = useState(false)
@@ -88,13 +88,12 @@ export const Home = () => {
         )
     }
 
-    // console.log(uploads[0].uploadComments);
+    console.log(uploadsConverted[0]);
 
     return (
         <div className="home-design">
             <CCard className={'homeUploads-Card'}>
                 {uploadsConverted !== null && uploadsConverted.slice(0, 9).map((file, index) => (
-                    // !toggleViewport
                     selectedCard !== index
                         ? (
                             <CCard key={`${index}${uploads[index].name}`} className={'homeViewport-Card'}>
@@ -133,6 +132,13 @@ export const Home = () => {
                                     <div className="icons-info">
                                         <SquareLibrary />
                                         <CText className={'text-iconsInfo'} title={uploads[index].posts.length} />
+                                    </div>
+                                    <div className="icons-info">
+                                        {
+                                            uploads[index].downloadable
+                                                ? <a href={file} download><Download /></a>
+                                                : <Download />
+                                        }
                                     </div>
                                 </div>
                             </CCard>
@@ -177,6 +183,9 @@ export const Home = () => {
                                         <div className="icons-info">
                                             <SquareLibrary />
                                             <CText className={'text-iconsInfo'} title={uploads[index].posts.length} />
+                                        </div>
+                                        <div className="icons-info">
+                                            <Download />
                                         </div>
                                     </div>
                                 </CCard>

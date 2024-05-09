@@ -92,11 +92,6 @@ export const Header = () => {
         document.title = "Welcome";
     }, [])
 
-    // useEffect(() => {
-    //     console.log("upload error: ", uploadDataError);
-    //     console.log("errorMsg: ", errorMsg);
-    // }, [uploadDataError])
-
     // Input Handler
     const inputHandler = (e) => {
         showLogin
@@ -146,23 +141,10 @@ export const Header = () => {
                                     ? (
                                         setUploadFile(file),
                                         setUploadFileUrl(URL.createObjectURL(file)),
-                                        console.log('Setting up reader.onload'),
-                                        reader.onload = (event) => {
-                                            console.log('onload fired');
-                                            const base64String = event.target.result.split(',')[1];
-                                            const binaryString = window.atob(base64String);
-                                            const len = binaryString.length;
-                                            const bytes = new Uint8Array(len);
-                                            for (let i = 0; i < len; i++) {
-                                                bytes[i] = binaryString.charCodeAt(i);
-                                            }
-                                            setUploadData((prevState) => ({
-                                                ...prevState,
-                                                file: bytes
-                                            }))
-                                        },
-                                        console.log('Calling readAsDataURL'),
-                                        reader.readAsDataURL(file)
+                                        setUploadData((prevState) => ({
+                                            ...prevState,
+                                            name: file.name
+                                        }))
                                     )
                                     : (
                                         setUploadFileError('Model has to be in FBX format!'),
@@ -412,7 +394,6 @@ export const Header = () => {
     const uploadInput = async () => {
         try {
             const uploaded = await uploadModelService(userToken, uploadFile)
-            console.log(uploaded);
             if (!uploaded.success) {
                 setErrorMsg(uploaded.message)
                 setTimeout(() => {
@@ -421,7 +402,6 @@ export const Header = () => {
                 throw new Error(uploaded.error)
             }
             const fetched = await createNewUpload(userToken, uploadData)
-            console.log(fetched);
             if (!fetched.success) {
                 setErrorMsg(fetched.message)
                 setTimeout(() => {
@@ -431,12 +411,12 @@ export const Header = () => {
             }
             setShowUpload(false)
         } catch (error) {
-            // if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
-            //     dispatch(logout({ credentials: {} }));
-            //     navigate('/')
-            // } else {
+            if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }));
+                navigate('/')
+            } else {
                 console.log(error);
-            // }
+            }
         }
     }
 
@@ -493,15 +473,6 @@ export const Header = () => {
                                     <div className="closeCard"><X onClick={() => toggleUpload()} className='icon-closeCard' /></div>
                                     <div className="upload-inputs">
                                         <div className="upload-info">
-                                            <CInput
-                                                disabled={errorMsg === "" ? false : errorMsg === uploadDataError.nameError ? false : true}
-                                                name={'name'}
-                                                type={'text'}
-                                                value={uploadData.name || ""}
-                                                placeholder={'input name'}
-                                                onChange={(e) => inputHandler(e)}
-                                                onBlur={(e) => checkError(e)}
-                                            />
                                             <CInput
                                                 disabled={errorMsg === "" ? false : errorMsg === uploadData.description ? false : true}
                                                 name={'description'}

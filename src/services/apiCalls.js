@@ -97,7 +97,6 @@ export const createNewUpload = async (token, uploadData) => {
             },
             body: JSON.stringify(uploadData)
         }
-        console.log(options);
         const response = await fetch(`${root}/upload/upload`, options)
 
         const data = await response.json()
@@ -122,7 +121,6 @@ export const uploadModelService = async (token, uploadFile) => {
             },
             body: formData
         }
-        console.log(options);
         const response = await fetch(`${root}/file/upload`, options)
         const data = await response.json()
 
@@ -147,10 +145,9 @@ export const getAvatarService = async (filename, token) => {
             }
         }
         const response = await fetch(`${root}/file/avatar/${filename}`, options)
-        console.log(response);
-        // if (!response.ok) {
-        //     throw new Error('Network response was not ok:', response.statusText)
-        // }
+        if (!response.ok) {
+            throw new Error('Network response was not ok:', response.statusText)
+        }
         const blob = await response.blob()
 
         const url = window.URL.createObjectURL(blob)
