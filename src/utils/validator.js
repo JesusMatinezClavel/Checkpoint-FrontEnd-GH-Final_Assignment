@@ -84,6 +84,16 @@ export const validate = (type, value) => {
             }
 
             return ""
+
+        case "file":
+            if (value === null) {
+                return "";
+            }
+            if (!(value instanceof Blob)) {
+                return "invalid file";
+            }
+            return "";
+
         default:
     }
 

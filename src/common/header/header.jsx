@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { userData, login, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { loginService, logoutService, registerService, uploadAvatarService } from '../../services/apiCalls';
+import { loginService, logoutService, registerService, uploadAvatarService, uploadModelService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -54,7 +54,6 @@ export const Header = () => {
     const [uploadDataError, setUploadDataError] = useState({
         nameError: "",
         descriptionError: "",
-        downloadableError: false,
         fileError: null
     })
     const [uploadFile, setUploadFile] = useState(null)
@@ -93,7 +92,7 @@ export const Header = () => {
         document.title = "Welcome";
     }, [])
     useEffect(() => {
-        console.log(uploadFile);
+        console.log(uploadData);
     }, [uploadData])
 
     // Input Handler
@@ -208,7 +207,16 @@ export const Header = () => {
                 }))
             )
             : null
-
+        showUpload
+            ? (
+                setUploadDataError((prevState) => ({
+                    ...prevState,
+                    nameError: valid,
+                    descriptionError: valid,
+                    fileError: valid
+                }))
+            )
+            : null
     }
 
     // Link errors with errorsMsg
@@ -230,10 +238,18 @@ export const Header = () => {
                 }
                 allErrorsCleared = Object.values(registerDataError).every(value => value === "")
             }
+        } else if (showUpload){
+            for (let element in uploadDataError) {
+                if (uploadDataError[element] !== "") {
+                    setErrorMsg(uploadDataError[element])
+                    break
+                }
+                allErrorsCleared = Object.values(uploadDataError).every(value => value === "")
+            } 
         }
 
         allErrorsCleared ? setErrorMsg("") : null
-    }, [loginDataError, registerDataError])
+    }, [loginDataError, registerDataError, uploadDataError])
 
     /////////////////////////////////////////////////////////////////////// LOGIN
     // Login Call
@@ -380,6 +396,34 @@ export const Header = () => {
 
     /////////////////////////////////////////////////////////////////////// UPLOAD
 
+    const uploadInput = async () => {
+        try {
+            const uploaded = await uploadModelService(registerAvatar)
+            if (!Uploaded.success) {
+                setErrorMsg(Uploaded.message)
+                setTimeout(() => {
+                    setErrorMsg("")
+                }, 2000);
+                throw new Error(Uploaded.error)
+            }
+            // const fetched = await registerService(registerData)
+            // if (!fetched.success) {
+            //     setErrorMsg(fetched.message)
+            //     setTimeout(() => {
+            //         setErrorMsg("")
+            //     }, 2000);
+            //     throw new Error(fetched.message)
+            // }
+            setShowUpload(false)
+        } catch (error) {
+            if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }));
+            } else {
+                console.log(error);
+            }
+        }
+    }
+
     const toggleUpload = () => {
         showUpload
             ? (
@@ -396,7 +440,6 @@ export const Header = () => {
                 setUploadDataError({
                     nameError: "",
                     descriptionError: "",
-                    downloadableError: false,
                     fileError: null
                 }),
                 setUploadFile(null),
@@ -473,7 +516,7 @@ export const Header = () => {
                                                 onBlur={(e) => checkError(e)}
                                             />
                                             <div className="login-button">
-                                                <CButton className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                                                <CButton className={errorMsg === "" ? 'button-upload' : 'upload-disabled'} title={'upload'} />
                                                 <CText title={errorMsg} />
                                             </div>
                                         </div>

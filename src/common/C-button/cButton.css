@@ -20,7 +20,8 @@
 }
 
 .register-disabled,
-.loggin-disabled {
+.loggin-disabled,
+.upload-disabled {
     height: 2em;
     width: 5em;
 
@@ -45,7 +46,8 @@
 .button-register,
 .button-profile,
 .button-upload,
-.button-logout {
+.button-logout,
+.button-upload {
     height: 2em;
     width: 5em;
     background-color:#292c37;
