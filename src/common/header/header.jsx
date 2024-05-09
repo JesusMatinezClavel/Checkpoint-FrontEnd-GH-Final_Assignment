@@ -35,6 +35,8 @@ export const Header = () => {
     const userToken = rdxUser.credentials.userToken
     const reader = new FileReader()
     let file
+    let newFileName
+    let newFile
 
     /////////////////////////////////////////////////////////////////////// HOOKS
     const [showLogin, setShowLogin] = useState(false)
@@ -91,7 +93,7 @@ export const Header = () => {
         document.title = "Welcome";
     }, [])
     useEffect(() => {
-        console.log(uploadData);
+        console.log(uploadFile);
     }, [uploadData])
 
     // Input Handler
@@ -139,8 +141,10 @@ export const Header = () => {
                         file = e.target.files[0],
                         file
                             ? (
-                                setUploadFile(file),
-                                setUploadFileUrl(URL.createObjectURL(file)),
+                                newFileName = `${rdxUser.credentials.userTokenData.userName}-${file.name}`,
+                                newFile = new File([file], newFileName, { type: file.type }),
+                                setUploadFile(newFile),
+                                setUploadFileUrl(URL.createObjectURL(newFile)),
                                 console.log('Setting up reader.onload'),
                                 reader.onload = (event) => {
                                     console.log('onload fired');
