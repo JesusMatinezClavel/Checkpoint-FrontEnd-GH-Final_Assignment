@@ -43,7 +43,6 @@ export const logoutService = async (token) => {
         return error
     }
 }
-
 export const registerService = async (registerData) => {
     try {
         const options = {
@@ -66,6 +65,8 @@ export const registerService = async (registerData) => {
     }
 }
 
+
+
 export const uploadAvatarService = async (file) => {
     try {
         const formData = new FormData()
@@ -86,6 +87,28 @@ export const uploadAvatarService = async (file) => {
         return error
     }
 }
+export const uploadModelService = async (token, uploadData)=>{
+    try {
+        const formData = new FormData()
+        formData.append("uploadFile", file)
+        const options = {
+            method: 'POST',
+            body: formData
+        }
+        const response = await fetch(`${root}/file/upload`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+
+
 
 export const getAvatarService = async (filename, token) => {
     try {
@@ -152,7 +175,6 @@ export const getUploadFileService = async (uploadId) => {
         return error
     }
 }
-
 export const getOwnProfileService = async (token) => {
     try {
         const options = {
