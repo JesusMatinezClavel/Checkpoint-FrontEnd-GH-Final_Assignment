@@ -87,14 +87,18 @@ export const uploadAvatarService = async (file) => {
         return error
     }
 }
-export const uploadModelService = async (token, uploadData)=>{
+export const uploadModelService = async (token, uploadFile) => {
     try {
         const formData = new FormData()
-        formData.append("uploadFile", file)
+        formData.append("uploadFile", uploadFile)
         const options = {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
             body: formData
         }
+        console.log(options);
         const response = await fetch(`${root}/file/upload`, options)
         const data = await response.json()
 

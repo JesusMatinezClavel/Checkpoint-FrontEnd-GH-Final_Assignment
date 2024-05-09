@@ -54,9 +54,9 @@ export const Header = () => {
     const [uploadDataError, setUploadDataError] = useState({
         nameError: "",
         descriptionError: "",
-        fileError: null
     })
     const [uploadFile, setUploadFile] = useState(null)
+    const [uploadFileError, setUploadFileError] = useState("")
     const [uploadFileUrl, setUploadFileUrl] = useState(null)
     const [resetViewport, setResetViewport] = useState(false)
 
@@ -91,9 +91,11 @@ export const Header = () => {
     useEffect(() => {
         document.title = "Welcome";
     }, [])
-    useEffect(() => {
-        console.log(uploadData);
-    }, [uploadData])
+
+    // useEffect(() => {
+    //     console.log("upload error: ", uploadDataError);
+    //     console.log("errorMsg: ", errorMsg);
+    // }, [uploadDataError])
 
     // Input Handler
     const inputHandler = (e) => {
@@ -140,27 +142,43 @@ export const Header = () => {
                         file = e.target.files[0],
                         file
                             ? (
-                                newFileName = `${rdxUser.credentials.userTokenData.userName}-${file.name}`,
-                                newFile = new File([file], newFileName, { type: file.type }),
-                                setUploadFile(newFile),
-                                setUploadFileUrl(URL.createObjectURL(newFile)),
-                                console.log('Setting up reader.onload'),
-                                reader.onload = (event) => {
-                                    console.log('onload fired');
-                                    const base64String = event.target.result.split(',')[1];
-                                    const binaryString = window.atob(base64String);
-                                    const len = binaryString.length;
-                                    const bytes = new Uint8Array(len);
-                                    for (let i = 0; i < len; i++) {
-                                        bytes[i] = binaryString.charCodeAt(i);
-                                    }
-                                    setUploadData((prevState) => ({
-                                        ...prevState,
-                                        file: bytes
-                                    }))
-                                },
-                                console.log('Calling readAsDataURL'),
-                                reader.readAsDataURL(file)
+                                file.name.endsWith('fbx')
+                                    ? (
+                                        newFileName = `${rdxUser.credentials.userTokenData.userName}-${file.name}`,
+                                        newFile = new File([file], newFileName, { type: file.type }),
+                                        setUploadFile(newFile),
+                                        setUploadFileUrl(URL.createObjectURL(newFile)),
+                                        console.log('Setting up reader.onload'),
+                                        reader.onload = (event) => {
+                                            console.log('onload fired');
+                                            const base64String = event.target.result.split(',')[1];
+                                            const binaryString = window.atob(base64String);
+                                            const len = binaryString.length;
+                                            const bytes = new Uint8Array(len);
+                                            for (let i = 0; i < len; i++) {
+                                                bytes[i] = binaryString.charCodeAt(i);
+                                            }
+                                            setUploadData((prevState) => ({
+                                                ...prevState,
+                                                file: bytes
+                                            }))
+                                        },
+                                        console.log('Calling readAsDataURL'),
+                                        reader.readAsDataURL(file)
+                                    )
+                                    : (
+                                        setUploadFileError('Model has to be in FBX format!'),
+                                        setErrorMsg(uploadFileError),
+                                        setTimeout(() => {
+                                            setErrorMsg("")
+                                        }, 2000),
+                                        setUploadFile(null),
+                                        setUploadFileUrl(null),
+                                        setUploadData((prevState) => ({
+                                            ...prevState,
+                                            file: null
+                                        }))
+                                    )
                             )
                             : null
                     )
@@ -209,11 +227,9 @@ export const Header = () => {
             : null
         showUpload
             ? (
-                setUploadDataError((prevState) => ({
+                setUploadDataError(prevState => ({
                     ...prevState,
-                    nameError: valid,
-                    descriptionError: valid,
-                    fileError: valid
+                    [e.target.name + 'Error']: valid
                 }))
             )
             : null
@@ -238,16 +254,15 @@ export const Header = () => {
                 }
                 allErrorsCleared = Object.values(registerDataError).every(value => value === "")
             }
-        } else if (showUpload){
+        } else if (showUpload) {
             for (let element in uploadDataError) {
                 if (uploadDataError[element] !== "") {
                     setErrorMsg(uploadDataError[element])
                     break
                 }
-                allErrorsCleared = Object.values(uploadDataError).every(value => value === "")
-            } 
+            }
+            allErrorsCleared = Object.values(uploadDataError).every(value => value === "")
         }
-
         allErrorsCleared ? setErrorMsg("") : null
     }, [loginDataError, registerDataError, uploadDataError])
 
@@ -398,13 +413,14 @@ export const Header = () => {
 
     const uploadInput = async () => {
         try {
-            const uploaded = await uploadModelService(registerAvatar)
-            if (!Uploaded.success) {
-                setErrorMsg(Uploaded.message)
+            const uploaded = await uploadModelService(userToken, uploadFile)
+            console.log(uploaded);
+            if (!uploaded.success) {
+                setErrorMsg(uploaded.message)
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
-                throw new Error(Uploaded.error)
+                throw new Error(uploaded.error)
             }
             // const fetched = await registerService(registerData)
             // if (!fetched.success) {
@@ -439,8 +455,7 @@ export const Header = () => {
                 }),
                 setUploadDataError({
                     nameError: "",
-                    descriptionError: "",
-                    fileError: null
+                    descriptionError: ""
                 }),
                 setUploadFile(null),
                 setUploadFileUrl(null),
@@ -515,8 +530,11 @@ export const Header = () => {
                                                 onChange={(e) => inputHandler(e)}
                                                 onBlur={(e) => checkError(e)}
                                             />
-                                            <div className="login-button">
-                                                <CButton className={errorMsg === "" ? 'button-upload' : 'upload-disabled'} title={'upload'} />
+                                            <div className="upload-button">
+                                                <CButton
+                                                    onClick={() => uploadInput()}
+                                                    className={errorMsg === "" ? 'button-upload' : 'upload-disabled'}
+                                                    title={'upload'} />
                                                 <CText title={errorMsg} />
                                             </div>
                                         </div>

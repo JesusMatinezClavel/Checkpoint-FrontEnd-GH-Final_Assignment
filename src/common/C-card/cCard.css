@@ -69,7 +69,8 @@
 }
 
 .login-button,
-.register-button {
+.register-button,
+.upload-button {
     height: auto;
     width: 95%;
 
