@@ -43,6 +43,8 @@ export const logoutService = async (token) => {
         return error
     }
 }
+
+
 export const registerService = async (registerData) => {
     try {
         const options = {
@@ -64,9 +66,6 @@ export const registerService = async (registerData) => {
         return error
     }
 }
-
-
-
 export const uploadAvatarService = async (file) => {
     try {
         const formData = new FormData()
@@ -76,6 +75,30 @@ export const uploadAvatarService = async (file) => {
             body: formData
         }
         const response = await fetch(`${root}/file/avatar`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+
+export const createNewUpload = async (token, uploadData) => {
+    try {
+        const options = {
+            method: 'POST',
+            Headers: {
+                'Conten-type': 'Application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(uploadData)
+        }
+        const response = await fetch(`${root}//upload/upload`, options)
+
         const data = await response.json()
 
         if (!data.success) {
