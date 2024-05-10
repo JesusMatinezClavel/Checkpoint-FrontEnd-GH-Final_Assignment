@@ -2,6 +2,8 @@
 
 export const root = 'http://localhost:4000/api'
 
+
+/// AUTH
 export const loginService = async (loginData) => {
     try {
         const options = {
@@ -43,8 +45,6 @@ export const logoutService = async (token) => {
         return error
     }
 }
-
-
 export const registerService = async (registerData) => {
     try {
         const options = {
@@ -86,6 +86,10 @@ export const uploadAvatarService = async (file) => {
         return error
     }
 }
+
+
+
+/// UPLOAD
 
 export const createNewUpload = async (token, uploadData) => {
     try {
@@ -133,31 +137,6 @@ export const uploadModelService = async (token, uploadFile) => {
         return error
     }
 }
-
-
-
-export const getAvatarService = async (filename, token) => {
-    try {
-        const options = {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        }
-        const response = await fetch(`${root}/file/avatar/${filename}`, options)
-        if (!response.ok) {
-            throw new Error('Network response was not ok:', response.statusText)
-        }
-        const blob = await response.blob()
-
-        const url = window.URL.createObjectURL(blob)
-
-        return url
-    } catch (error) {
-        console.error('Error fetching avatar:', error);
-        return error;
-    }
-}
 export const getAllUploadsService = async () => {
     try {
         const options = {
@@ -200,6 +179,33 @@ export const getUploadFileService = async (uploadId) => {
         return error
     }
 }
+
+
+
+/// USER
+
+export const getAvatarService = async (filename, token) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/file/avatar/${filename}`, options)
+        if (!response.ok) {
+            throw new Error('Network response was not ok:', response.statusText)
+        }
+        const blob = await response.blob()
+
+        const url = window.URL.createObjectURL(blob)
+
+        return url
+    } catch (error) {
+        console.error('Error fetching avatar:', error);
+        return error;
+    }
+}
 export const getOwnProfileService = async (token) => {
     try {
         const options = {
@@ -210,6 +216,29 @@ export const getOwnProfileService = async (token) => {
             }
         }
         const response = await fetch(`${root}/user/profile/`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+export const updateOwnProfileService = async (token, updateData) => {
+    try {
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'Application/json',
+                'authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updateData)
+        }
+        const response = await fetch(`${root}/user/profile/update`, options)
+        
         const data = await response.json()
 
         if (!data.success) {
