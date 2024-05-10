@@ -2,6 +2,7 @@
 import './profile.css'
 
 // Lucide
+import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
 
 // Methods/Modules
 import { useState, useEffect } from "react";
@@ -32,7 +33,7 @@ export const Profile = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
-    const userToken = rdxUser.credentials.userToken
+    const userToken = rdxUser?.credentials?.userToken
     const reader = new FileReader()
     let file
     let newFile
@@ -65,55 +66,17 @@ export const Profile = () => {
     const [errorMsg, setErrorMsg] = useState("")
     const [showUpdate, setShowUpdate] = useState(false)
 
-    /////////////////////////////////////////////////////////////////////// LOGIC
+    /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
     // Change document title
     useEffect(() => {
         !rdxUser?.credentials?.userToken
-            ? navigate('/')
+            ? (
+                dispatch(logout({ credentials: {} })),
+                navigate('/')
+            )
             : (document.title = `${rdxUser?.credentials?.userTokenData?.userName}'s Profile`)
     }, [])
-
-    // Input Handler
-    const inputHandler = (e) => {
-        if (e.target.files) {
-            const file = e.target.files[0];
-            if (file) {
-                const newFileName = `${userInfo.name}-${file.name}`;
-                const newFile = new File([file], newFileName, { type: file.type });
-                setUpdateAvatar(newFile);
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    setAvatarPreview(event.target.result);
-                    setUpdateData((prevState) => ({
-                        ...prevState,
-                        avatar: newFileName
-                    }));
-                };
-                reader.readAsDataURL(file);
-            }
-        } else {
-            setUpdateData((prevState) => ({
-                ...prevState,
-                [e.target.name]: e.target.value
-            }));
-            if (e.target.value === "") {
-                setErrorMsg("");
-            }
-        }
-    }
-
-    // Check Error
-    const checkError = (e) => {
-
-        const valid = validate(e.target.name, e.target.value)
-
-        setUpdateDataError((prevState) => ({
-            ...prevState,
-            [e.target.name + 'Error']: valid
-        }))
-
-    }
 
     // Link errors with errorsMsg
     useEffect(() => {
@@ -138,7 +101,7 @@ export const Profile = () => {
                 if (!userFetched.success) {
                     throw new Error(userFetched.message)
                 }
-                const avatarFetched = await getAvatarService(userFetched.data.avatar.split("-")[1], userToken)
+                const avatarFetched = await getAvatarService(userFetched.data.avatar, userToken)
                 setUserAvatar(avatarFetched)
                 setUserInfo(userFetched.data)
                 setLoading((prevState) => ({
@@ -155,6 +118,20 @@ export const Profile = () => {
         }
         if (userInfo === null) {
             getProfile()
+        }
+    }, [userInfo])
+
+    useEffect(() => {
+        const getAvatar = async () => {
+            try {
+                const avatarFetched = await getAvatarService(userInfo?.avatar, userToken)
+                setUserAvatar(avatarFetched)
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        if (userInfo?.avatar) {
+            getAvatar()
         }
     }, [userInfo])
 
@@ -185,28 +162,78 @@ export const Profile = () => {
         fetchUploads();
     }, [userInfo, userUploads]);
 
+    /////////////////////////////////////////////////////////////////////// LOGIC 
+
+    // Input Handler
+    const inputHandler = (e) => {
+        if (e.target.files) {
+            const file = e.target.files[0];
+            if (file) {
+                const newFileName = `${userInfo.name}-${file.name}`;
+                const newFile = new File([file], newFileName, { type: file.type });
+                setUpdateAvatar(newFile);
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    setUserAvatar(event.target.result);
+                    setUpdateData((prevState) => ({
+                        ...prevState,
+                        avatar: newFileName
+                    }));
+                };
+                reader.readAsDataURL(file);
+            }
+        } else {
+            setUpdateData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value
+            }));
+            if (e.target.value === "") {
+                setErrorMsg("");
+            }
+        }
+    }
+
+    // Check Error
+    const checkError = (e) => {
+
+        const valid = validate(e.target.name, e.target.value)
+
+        setUpdateDataError((prevState) => ({
+            ...prevState,
+            [e.target.name + 'Error']: valid
+        }))
+
+    }
+
     // Toogle Update
     const toggleUpdate = () => {
         if (showUpdate) {
             const updateInput = async () => {
                 try {
                     if (updateAvatar) {
-                        const Uploaded = await uploadAvatarService(updateAvatar)
-                        if (!Uploaded.success) {
-                            setErrorMsg(Uploaded.message)
+                        const uploaded = await uploadAvatarService(updateAvatar)
+                        if (!uploaded?.success) {
+                            setErrorMsg(uploaded?.message)
                             setTimeout(() => {
                                 setErrorMsg("")
                             }, 2000);
-                            throw new Error(Uploaded.error)
+                            throw new Error(uploaded?.error)
                         }
                     }
                     const fetched = await updateOwnProfileService(userToken, updateData)
-                    if (!fetched.success) {
-                        setErrorMsg(fetched.message)
+                    if (!fetched?.success) {
+                        setErrorMsg(fetched?.message)
                         setTimeout(() => {
                             setErrorMsg("")
                         }, 2000);
                     } else {
+                        setUserInfo((prevState) => ({
+                            ...prevState,
+                            name: fetched?.data?.name,
+                            bio: fetched?.data?.bio,
+                            avatar: fetched?.data?.avatar,
+                            email: fetched?.data?.email
+                        }))
                         setShowUpdate(false)
                     }
                 } catch (error) {
@@ -229,6 +256,9 @@ export const Profile = () => {
         }
     }
 
+    // Delete Profile
+    
+
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
@@ -244,7 +274,24 @@ export const Profile = () => {
                                     {
                                         userUploads.map((upload, index) => {
                                             return (
-                                                <Viewport key={`${index}-${userInfo.name}`} asset={upload} />
+                                                <CCard key={`${index}-${userInfo.name}`}>
+                                                    <CText title={userInfo.uploads[index].name.split(".")[0]} />
+                                                    <Viewport asset={upload} />
+                                                    <div className="info">
+                                                        <div className="icons-info">
+                                                            <Heart />
+                                                            <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.liked?.length} />
+                                                        </div>
+                                                        <div className="icons-info">
+                                                            <MessageSquare />
+                                                            <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.uploadComments?.length} />
+                                                        </div>
+                                                        <div className="icons-info">
+                                                            <SquareLibrary />
+                                                            <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.posts?.length} />
+                                                        </div>
+                                                    </div>
+                                                </CCard>
                                             )
                                         })
                                     }
@@ -260,6 +307,7 @@ export const Profile = () => {
                             <CCard className={'userInfo-Card'}>
                                 {
                                     showUpdate
+                                        // UPDATE PROFILE
                                         ? (
                                             <form
                                                 action="http://localhost:4000/api/file/avatar"
@@ -275,9 +323,15 @@ export const Profile = () => {
                                                                 className={'uploadPhotoInput'}
                                                                 onChange={(e) => inputHandler(e)}>
                                                                 <img
-                                                                    src={avatarPreview || userAvatar}
+                                                                    src={userAvatar}
                                                                     alt={`${userInfo.name}'s avatar`}
+                                                                    onError={(e) => {
+                                                                        e.target.onerror = null;
+                                                                        e.target.style.display = 'none';
+                                                                        e.target.nextElementSibling.style.display = 'flex';
+                                                                    }}
                                                                 />
+                                                                <div className="noAvatar" style={{ display: 'none' }}>{userInfo.name.split("")[0].toUpperCase()}</div>
                                                             </label>
                                                         </div>
                                                         <CInput
@@ -332,12 +386,18 @@ export const Profile = () => {
                                                                 title={'Update'}
                                                                 onClick={errorMsg !== "" ? null : () => toggleUpdate()}
                                                                 className={errorMsg !== "" ? 'update-disabled' : 'button-update'} />
+                                                            <CButton
+                                                                title={'Delete'}
+                                                                onClick={errorMsg !== "" ? null : () => toggleUpdate()}
+                                                                className={errorMsg !== "" ? 'update-disabled' : 'button-update'} />
                                                         </div>
                                                         <CText title={errorMsg} />
                                                     </div>
                                                 </div>
                                             </form>
-                                        ) : (
+                                        )
+                                        // PROFILE
+                                        : (
                                             <>
                                                 {
                                                     userInfo.avatar !== `${userInfo.name}-undefined`

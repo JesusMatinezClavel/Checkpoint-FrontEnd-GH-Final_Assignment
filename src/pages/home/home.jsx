@@ -1,31 +1,54 @@
+// Styles
+
+// Lucide
+import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
+
+// Methods/Modules
 import { useState, useEffect } from "react";
-import { LoadingManager } from "three";
+
+// Redux
+import { useSelector, useDispatch } from "react-redux";
+import { userData } from "../../app/slices/userSlice";
+
+// Api Calls
+import { getAllUploadsService, getAvatarService, getUploadFileService } from '../../services/apiCalls';
+
+// Custom Elements
 import { Viewport } from "../../common/Three-Viewport/viewport";
 import { CCard } from "../../common/C-card/cCard";
 import { CText } from "../../common/C-text/cText";
 import { CButton } from "../../common/C-button/cButton";
-import { getAllUploadsService, getUploadFileService } from '../../services/apiCalls';
-import { login } from "../../app/slices/userSlice";
-
-import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
 import { CInput } from "../../common/C-input/cInput";
 
+
+
+
+
 export const Home = () => {
+
+    /////////////////////////////////////////////////////////////////////// INSTANCES
+    const dispatch = useDispatch()
+    const rdxUser = useSelector(userData)
+    const userToken = rdxUser.credentials.userToken
+
+    /////////////////////////////////////////////////////////////////////// HOOKS
     const [uploads, setUploads] = useState(null)
+    const [userAvatar, setUserAvatar] = useState([])
     const [uploadsConverted, setUploadsConverted] = useState(null)
-    const [uplloadsDownload, setUploadsDownload] = useState(null)
     const [loading, setLoading] = useState(true)
     const [asset, setAset] = useState('../../models/Brick.fbx')
     const [toggleViewport, setToggleViewport] = useState(false)
     const [selectedCard, setSelectedCard] = useState(null)
     const [toggleComments, setToggleComments] = useState(false)
 
+    /////////////////////////////////////////////////////////////////////// USE EFFECTS
+
     useEffect(() => {
         const fetchUploads = async () => {
             try {
                 const fetched = await getAllUploadsService();
                 if (!fetched.success) {
-                    throw new Error(fetched.message);
+                    throw new Error(fetched?.message);
                 }
                 setUploads(fetched.data);
             } catch (error) {
@@ -37,6 +60,26 @@ export const Home = () => {
             fetchUploads();
         }
     }, [uploads]);
+
+    useEffect(() => {
+        const fetchAvatars = async () => {
+            const avatars = [];
+            for (const upload of uploads) {
+                try {
+                    const avatar = await getAvatarService(upload?.user.avatar, userToken)
+                    avatars.push(avatar)
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+            setUserAvatar(prevState => [...prevState, ...avatars])
+        }
+
+        if (uploads?.length > 0 && (!userAvatar || userAvatar?.length === 0)) {
+            fetchAvatars();
+        }
+
+    }, [uploads, userAvatar])
 
     useEffect(() => {
         const convertUploads = async () => {
@@ -59,31 +102,12 @@ export const Home = () => {
                     console.error('Error processing uploads:', error);
                 }
             }
-        };
-
+        }
         convertUploads();
     }, [uploads, uploadsConverted]);
 
-    // useEffect(() => {
-    //     if (uploads && !uploadsConverted) {
-    //         Promise.all(uploads.map(async (upload) => {
-    //             try {
-    //                 const fetchedFile = await getUploadFileService(upload.id);
-    //                 const uploadUrl = URL.createObjectURL(fetchedFile);
-    //                 return uploadUrl;
-    //             } catch (error) {
-    //                 console.error(error);
-    //                 return null;
-    //             }
-    //         })).then((urls) => {
-    //             const validUrls = urls.filter(url => url !== null);
-    //             setUploadsConverted(validUrls);
-    //             setLoading(false);
-    //         });
-    //     }
-    // }, [uploads, uploadsConverted]);
+    /////////////////////////////////////////////////////////////////////// LOGIC
 
-    console.log(toggleViewport);
 
     const hideCard = (e) => {
         e.target.classList === "viewportDetail"
@@ -94,9 +118,7 @@ export const Home = () => {
 
     const toggleDetail = (index) => {
         setSelectedCard(index)
-        toggleViewport
-            ? setToggleViewport(false)
-            : setToggleViewport(true)
+        setToggleViewport(prevState => !prevState)
     }
 
     const showComments = (index) => {
@@ -114,13 +136,14 @@ export const Home = () => {
         )
     }
 
-    console.log(uploadsConverted[0]);
+    /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="home-design">
             <CCard className={'homeUploads-Card'}>
                 {uploadsConverted !== null && uploadsConverted.slice(0, 9).map((file, index) => (
                     selectedCard !== index
+                        // ALL UPLOADS
                         ? (
                             <CCard key={`${index}${uploads[index].name}`} className={'homeViewport-Card'}>
                                 <div className="author">
@@ -129,7 +152,7 @@ export const Home = () => {
                                             ? (
                                                 <div className="author-avatar">
                                                     <img
-                                                        src={uploads[index].user.avatar}
+                                                        src={userAvatar[index]}
                                                         alt={`${uploads[index].user.name}'s avatar`}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
@@ -168,7 +191,9 @@ export const Home = () => {
                                     </div>
                                 </div>
                             </CCard>
-                        ) : (
+                        )
+                        // DETAIL UPLOAD
+                        : (
                             <div onClick={(e) => hideCard(e)} className="viewportDetail">
                                 <CCard key={`${index}${uploads[index].name} copy`} className='homeViewport-Card'>
                                     <div className="closeCard"><X onClick={() => toggleDetail()} className='icon-closeCard' /></div>

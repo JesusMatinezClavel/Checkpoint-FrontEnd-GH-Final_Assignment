@@ -108,20 +108,25 @@ export const Header = () => {
                 e.target.files
                     ? (
                         file = e.target.files[0],
-                        file
+                        file && registerData.name
                             ? (
-                                // const newFileName = "nuevo_nombre" + file.name; // Modifica según necesites
-                                // const newFile = new File([file], newFileName, { type: file.type });
-                                setRegisterAvatar(file),
+                                newFileName = `${registerData.name}-${file.name}`,
+                                newFile = new File([file], newFileName, { type: file.type }),
+                                setRegisterAvatar(newFile),
                                 reader.onload = (event) => {
                                     setAvatarPreview(event.target.result)
                                     setRegisterData((prevState) => ({
                                         ...prevState,
-                                        avatar: file.name
+                                        avatar: newFileName
                                     }))
                                 },
-                                reader.readAsDataURL(file)
-                            ) : null
+                                reader.readAsDataURL(newFile)
+                            ) : (
+                                setErrorMsg('Before selecting avatar enter your name'),
+                                setTimeout(() => {
+                                    setErrorMsg('')
+                                }, 2000)
+                            )
                     )
                     : (
                         setRegisterData((prevState) => ({

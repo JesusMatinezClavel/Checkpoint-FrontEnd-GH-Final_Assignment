@@ -238,7 +238,29 @@ export const updateOwnProfileService = async (token, updateData) => {
             body: JSON.stringify(updateData)
         }
         const response = await fetch(`${root}/user/profile/update`, options)
-        
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+export const deleteOwnProfileService = async (token) => {
+    try {
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'authorization': `Bearer ${token}`
+            },
+        }
+
+        const response = await fetch(`${root}/user/delete`, options)
+
         const data = await response.json()
 
         if (!data.success) {

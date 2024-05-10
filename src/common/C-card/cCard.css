@@ -68,6 +68,15 @@
     flex-direction: column;
 }
 
+.update-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    padding: 1em 1em;
+}
+
 .login-button,
 .register-button,
 .upload-button,
@@ -80,7 +89,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
 }
 
 .homeUploads-Card {
@@ -145,7 +154,7 @@
     color: #292c37;
 }
 
-.homeViewport-Card .info {
+.info {
     width: 95%;
     display: flex;
     justify-content: space-between;
@@ -178,25 +187,24 @@
     flex-direction: row;
 }
 
-.homeViewport-Card .author-avatar {
-    height: 4em;
-    width: 4em;
+.author-avatar {
 
-    border-radius: 100%;
-    border: .1em solid black;
+    height: 10em;
+    width: 90%;
 
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.homeViewport-Card .author-avatar img {
-    border-radius: 100%;
+.author-avatar img {
+    border: .1em solid #cccccc;
     display: block;
     height: auto;
     width: 100%;
     object-fit: cover;
 }
+
 
 .user-card,
 .uploads-card {
@@ -270,6 +278,5 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
 }
