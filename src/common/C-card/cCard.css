@@ -92,6 +92,10 @@
     flex-direction: row;
 }
 
+.update-button{
+    flex-direction: column;
+}
+
 .homeUploads-Card {
     min-height: 80vh;
 
@@ -189,8 +193,10 @@
 
 .author-avatar {
 
-    height: 10em;
+    height: auto;
     width: 90%;
+
+    margin: 1em;
 
     display: flex;
     justify-content: center;
@@ -200,7 +206,7 @@
 .author-avatar img {
     border: .1em solid #cccccc;
     display: block;
-    height: auto;
+    height: 50%;
     width: 100%;
     object-fit: cover;
 }
@@ -223,6 +229,12 @@
 }
 
 .userInfo-card {
+
+    height: 10000em;
+    width: auto;
+
+    padding: 1em 1em;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -279,4 +291,14 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
+}
+
+.confirm{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    height: auto;
+    width: auto;
 }

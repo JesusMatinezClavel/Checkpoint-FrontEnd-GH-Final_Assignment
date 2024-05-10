@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userData, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { getAvatarService, getOwnProfileService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
+import { deleteOwnProfileService, getAvatarService, getOwnProfileService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -65,6 +65,7 @@ export const Profile = () => {
     const [avatarPreview, setAvatarPreview] = useState("")
     const [errorMsg, setErrorMsg] = useState("")
     const [showUpdate, setShowUpdate] = useState(false)
+    const [showConfirm, setShowConfirm] = useState(false)
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
@@ -205,6 +206,8 @@ export const Profile = () => {
 
     }
 
+    /////////////////////////////////////////////////////////////////////// UPDATE PROFILE
+
     // Toogle Update
     const toggleUpdate = () => {
         if (showUpdate) {
@@ -256,8 +259,33 @@ export const Profile = () => {
         }
     }
 
+    /////////////////////////////////////////////////////////////////////// DELETE PROFILE
+
     // Delete Profile
-    
+    const deleteInput = async () => {
+        try {
+            const fetched = await deleteOwnProfileService(userToken)
+            if (!fetched?.success) {
+                throw new Error(fetched?.message)
+            }
+            dispatch(logout({ credentials: {} }))
+            navigate('/')
+        } catch (error) {
+            if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }))
+                navigate('/')
+            } else {
+                console.log(error);
+            }
+        }
+    }
+
+    const toggleDelete = () => {
+        console.log(showConfirm);
+        showConfirm
+            ? setShowConfirm(false)
+            : setShowConfirm(true)
+    }
 
     /////////////////////////////////////////////////////////////////////// RETURN
 
@@ -269,6 +297,7 @@ export const Profile = () => {
                         ? <CText title={'You have no models uploaded!'} />
                         : loading.uploadLoading
                             ? <CText title={'Loading'} />
+                            // UPLOADS
                             : (
                                 <CCard className={'userUploads-card'}>
                                     {
@@ -388,8 +417,18 @@ export const Profile = () => {
                                                                 className={errorMsg !== "" ? 'update-disabled' : 'button-update'} />
                                                             <CButton
                                                                 title={'Delete'}
-                                                                onClick={errorMsg !== "" ? null : () => toggleUpdate()}
-                                                                className={errorMsg !== "" ? 'update-disabled' : 'button-update'} />
+                                                                onClick={errorMsg !== "" ? null : () => toggleDelete()}
+                                                                className={showUpdate && !showConfirm ? 'button-delete' : 'hidden'} />
+                                                            <div className="confirm">
+                                                                <CButton
+                                                                    title={'confirm'}
+                                                                    className={showConfirm ? 'button-delete-yes' : 'hidden'}
+                                                                    onClick={()=>deleteInput()} />
+                                                                <CButton
+                                                                    title={'cancel'}
+                                                                    className={showConfirm ? 'button-delete-no' : 'hidden'}
+                                                                    onClick={() => toggleDelete()} />
+                                                            </div>
                                                         </div>
                                                         <CText title={errorMsg} />
                                                     </div>

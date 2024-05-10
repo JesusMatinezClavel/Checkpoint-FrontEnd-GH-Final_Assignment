@@ -19,6 +19,10 @@
     }
 }
 
+.hidden{
+    display: none;
+}
+
 .register-disabled,
 .loggin-disabled,
 .upload-disabled,
@@ -49,7 +53,8 @@
 .button-upload,
 .button-logout,
 .button-upload,
-.button-update {
+.button-update,
+.button-delete {
     height: auto;
     width: 8em;
     background-color: #292c37;
@@ -61,6 +66,38 @@
     align-items: center;
 
     margin: 1em;
+}
+
+.button-delete-yes{
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 4.1em;
+
+    border-top-right-radius:0em ;
+    border-bottom-right-radius:0em ;
+    border-right: 0em;
+
+    background-color:#cccccc ;
+    color: #292c37
+}
+
+.button-delete-no{
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 4.1em;
+
+    border-top-left-radius:0em ;
+    border-bottom-left-radius:0em ;
+    border-left:0em;
+
+    background-color:#292c37;
+    color: #cccccc;
 }
 
 .lucide-button {

@@ -3,17 +3,17 @@
     min-height: 1.5em;
 }
 
-.text-title{
+.text-title {
     color: rgb(99, 97, 97);
     font-size: 2em;
 }
 
-.text-iconsInfo{
+.text-iconsInfo {
     height: 1em;
     width: 1em;
 }
 
-.text-userInfo{
+.text-userInfo {
     height: 2em;
     width: 90%;
 
@@ -24,25 +24,25 @@
     align-items: center;
 }
 
-.text-infoTitle{
+.text-infoTitle {
     height: 2em;
-    width: 80;
+    width: 80%;
 
     display: flex;
     justify-content: start;
     align-items: center;
 
     font-size: 1.2em;
-    
+
     border-bottom: .1em solid #cccccc;
 }
 
-.text-comment{
+.text-comment {
     display: flex;
     justify-content: center;
-    align-items: start;  
+    align-items: start;
 }
 
-.text-area{
+.text-area {
     height: 30em;
 }

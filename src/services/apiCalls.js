@@ -179,6 +179,28 @@ export const getUploadFileService = async (uploadId) => {
         return error
     }
 }
+export const deleteOwnUploadService = async (token, fileId) => {
+    try {
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'authorization': `Bearer ${token}`
+            },
+        }
+
+        const response = await fetch(`${root}/upload/delete`, options)
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
 
 
 
