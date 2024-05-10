@@ -70,7 +70,8 @@
 
 .login-button,
 .register-button,
-.upload-button {
+.upload-button,
+.update-button {
     height: auto;
     width: 95%;
 

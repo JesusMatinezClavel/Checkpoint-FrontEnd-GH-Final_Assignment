@@ -21,9 +21,10 @@
 
 .register-disabled,
 .loggin-disabled,
-.upload-disabled {
-    height: 2em;
-    width: 5em;
+.upload-disabled,
+.update-disabled {
+    height: auto;
+    width: 8em;
 
     background-color: grey;
 
@@ -47,10 +48,11 @@
 .button-profile,
 .button-upload,
 .button-logout,
-.button-upload {
-    height: 2em;
-    width: 5em;
-    background-color:#292c37;
+.button-upload,
+.button-update {
+    height: auto;
+    width: 8em;
+    background-color: #292c37;
 
     color: #cccccc;
 
@@ -61,7 +63,7 @@
     margin: 1em;
 }
 
-.lucide-button{
+.lucide-button {
     height: 10em;
     width: 10em;
 

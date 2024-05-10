@@ -110,6 +110,8 @@ export const Header = () => {
                         file = e.target.files[0],
                         file
                             ? (
+                                // const newFileName = "nuevo_nombre" + file.name; // Modifica según necesites
+                                // const newFile = new File([file], newFileName, { type: file.type });
                                 setRegisterAvatar(file),
                                 reader.onload = (event) => {
                                     setAvatarPreview(event.target.result)

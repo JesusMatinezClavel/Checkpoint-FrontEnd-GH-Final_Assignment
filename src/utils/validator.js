@@ -76,6 +76,7 @@ export const validate = (type, value) => {
             }
 
             return ""
+        case "avatar":
         case "media":
         case "profileImg":
 

@@ -39,23 +39,49 @@ export const Home = () => {
     }, [uploads]);
 
     useEffect(() => {
-        if (uploads && !uploadsConverted) {
-            Promise.all(uploads.map(async (upload) => {
+        const convertUploads = async () => {
+            if (uploads && !uploadsConverted) {
                 try {
-                    const fetchedFile = await getUploadFileService(upload.id);
-                    const uploadUrl = URL.createObjectURL(fetchedFile);
-                    return uploadUrl;
+                    const uploadUrls = await Promise.all(uploads.map(async (upload) => {
+                        try {
+                            const fetchedFile = await getUploadFileService(upload.id);
+                            const uploadUrl = URL.createObjectURL(fetchedFile);
+                            return uploadUrl;
+                        } catch (error) {
+                            console.error(error);
+                            return null;
+                        }
+                    }));
+                    const validUrls = uploadUrls.filter(url => url !== null);
+                    setUploadsConverted(validUrls);
+                    setLoading(false);
                 } catch (error) {
-                    console.error(error);
-                    return null;
+                    console.error('Error processing uploads:', error);
                 }
-            })).then((urls) => {
-                const validUrls = urls.filter(url => url !== null);
-                setUploadsConverted(validUrls);
-                setLoading(false);
-            });
-        }
+            }
+        };
+
+        convertUploads();
     }, [uploads, uploadsConverted]);
+
+    // useEffect(() => {
+    //     if (uploads && !uploadsConverted) {
+    //         Promise.all(uploads.map(async (upload) => {
+    //             try {
+    //                 const fetchedFile = await getUploadFileService(upload.id);
+    //                 const uploadUrl = URL.createObjectURL(fetchedFile);
+    //                 return uploadUrl;
+    //             } catch (error) {
+    //                 console.error(error);
+    //                 return null;
+    //             }
+    //         })).then((urls) => {
+    //             const validUrls = urls.filter(url => url !== null);
+    //             setUploadsConverted(validUrls);
+    //             setLoading(false);
+    //         });
+    //     }
+    // }, [uploads, uploadsConverted]);
 
     console.log(toggleViewport);
 
