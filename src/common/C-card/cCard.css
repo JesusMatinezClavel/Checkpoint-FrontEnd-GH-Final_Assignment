@@ -39,6 +39,9 @@
     align-items: center;
     flex-direction: column;
 }
+.card-register{
+    top: 5em;
+}
 
 .closeCard {
     height: 10%;
@@ -54,9 +57,11 @@
 .upload-inputs {
     max-height: 70%;
     width: 95%;
+
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 }
 
 .register-info,
@@ -92,7 +97,11 @@
     flex-direction: row;
 }
 
-.update-button{
+.register-button{
+    flex-direction: column;
+}
+
+.update-button {
     flex-direction: column;
 }
 
@@ -166,7 +175,7 @@
     flex-direction: row;
 }
 
-.homeViewport-Card .info .icons-info {
+.info .icons-info {
 
     display: flex;
     justify-content: center;
@@ -183,12 +192,19 @@
     height: 5em;
     width: 90%;
 
-    border-radius: .5em;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
+}
+
+.homeViewport-Card .author-avatar {
+    height: 4em;
+    width: 4em;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .author-avatar {
@@ -204,9 +220,10 @@
 }
 
 .author-avatar img {
+    border-radius: 5em;
     border: .1em solid #cccccc;
     display: block;
-    height: 50%;
+    height: auto;
     width: 100%;
     object-fit: cover;
 }
@@ -293,7 +310,7 @@
     flex-direction: column;
 }
 
-.confirm{
+.confirm {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -301,4 +318,16 @@
 
     height: auto;
     width: auto;
+}
+
+.separator{
+    height: .1em;
+    width: 50%;
+
+    border-radius: 1em;
+
+    margin-top:1em;
+    margin-bottom:1em;
+
+    background-color: #cccccc;
 }

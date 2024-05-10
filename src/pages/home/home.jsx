@@ -166,7 +166,7 @@ export const Home = () => {
                                                 <div className="noAvatar">{uploads[index].user.name.split("")[0].toUpperCase()}</div>
                                             )
                                     }
-                                    <CText title={uploads[index].name} />
+                                    <CText title={uploads[index].name.split(".")[0]} />
                                 </div>
                                 <Viewport onClick={() => toggleDetail(index)} asset={file || asset} />
                                 <div className="info">

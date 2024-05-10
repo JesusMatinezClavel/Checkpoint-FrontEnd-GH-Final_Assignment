@@ -14,15 +14,6 @@ export const Viewport = ({ onClick, asset, reset }) => {
     const lightRef = useRef(new THREE.PointLight(0xffffff, 10000))
 
     useEffect(() => {
-        // Clear the scene
-        sceneRef.current.remove(sceneRef.current.children[0]);
-
-        // Optionally, reset camera and light positions if needed
-        cameraRef.current.position.set(20, 20, 50);
-        lightRef.current.position.set(20, 50, 50);
-    }, [reset]);
-
-    useEffect(() => {
         const canvas = canvasRef.current
         const renderer = new THREE.WebGLRenderer({ canvas });
         const controls = new OrbitControls(cameraRef.current, renderer.domElement);
@@ -100,5 +91,5 @@ export const Viewport = ({ onClick, asset, reset }) => {
 
 
 
-    return <canvas onClick={onClick} ref={canvasRef} reset={reset ? reset.toString() : undefined} />;
+    return <canvas onClick={onClick} ref={canvasRef} />;
 };

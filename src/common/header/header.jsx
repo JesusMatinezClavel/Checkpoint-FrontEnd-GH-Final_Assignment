@@ -455,6 +455,7 @@ export const Header = () => {
 
     return (
         <div className="header-design">
+            <CButton title={'home'} onClick={() => navigate('/')} />
             <div className="separator-header"></div>
             {
                 rdxUser.credentials.userToken
@@ -531,7 +532,10 @@ export const Header = () => {
                                 <CCard className={showLogin ? "card-login" : 'hidden'}>
                                     <div className="closeCard"><X onClick={() => toggleLogin()} className='icon-closeCard' /></div>
                                     <div className="login-inputs">
+                                        <CText className={'text-infoTitle-top'} title={'Loggin!'} />
+                                        <CText className={'text-subtitle'} title={'Welcome back!'} />
                                         <div className="login-info">
+                                            <CText className={'text-infoTitle-inputs'} title={'Email'} />
                                             <CInput
                                                 disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
                                                 name={'email'}
@@ -541,6 +545,7 @@ export const Header = () => {
                                                 onChange={(e) => inputHandler(e)}
                                                 onBlur={(e) => checkError(e)}
                                             />
+                                            <CText className={'text-infoTitle-inputs'} title={'Password'} />
                                             <CInput
                                                 disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
                                                 name={'password'}
@@ -552,6 +557,7 @@ export const Header = () => {
                                             />
                                         </div>
                                     </div>
+                                    <div className="separator"></div>
                                     <div className="login-button">
                                         <CButton onClick={errorMsg === "" ? () => loginInput() : null} className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
                                         <CText title={errorMsg} />
@@ -563,6 +569,8 @@ export const Header = () => {
                             <div onClick={(e) => hideCard(e)} className={showRegister ? "welcome-overlay" : 'hidden'}>
                                 <CCard className={showRegister ? "card-register" : 'hidden'}>
                                     <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
+                                    <CText className={'text-infoTitle-top'} title={'Register!'} />
+                                    <CText className={'text-subtitle'} title={'Welcome to Checkpoint!'} />
                                     <form
                                         action="http://localhost:4000/api/file/avatar"
                                         encType="multipart/form-data"
@@ -588,6 +596,7 @@ export const Header = () => {
                                                     onChange={(e) => inputHandler(e)}
                                                     onBlur={(e) => checkError(e)}
                                                 />
+                                                <CText className={'text-infoTitle-inputs'} title={'Name'} />
                                                 <CInput
                                                     disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
                                                     name={'name'}
@@ -597,6 +606,7 @@ export const Header = () => {
                                                     onChange={(e) => inputHandler(e)}
                                                     onBlur={(e) => checkError(e)}
                                                 />
+                                                <CText className={'text-infoTitle-inputs'} title={'Email'} />
                                                 <CInput
                                                     disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
                                                     name={'email'}
@@ -606,6 +616,7 @@ export const Header = () => {
                                                     onChange={(e) => inputHandler(e)}
                                                     onBlur={(e) => checkError(e)}
                                                 />
+                                                <CText className={'text-infoTitle-inputs'} title={'Password'} />
                                                 <CInput
                                                     disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
                                                     name={'password'}
@@ -616,6 +627,7 @@ export const Header = () => {
                                                     onBlur={(e) => checkError(e)}
                                                 />
                                             </div>
+                                            <div className="separator"></div>
                                         </div>
                                         <div className="register-button">
                                             <CButton onClick={errorMsg === "" ? (e) => registerInput(e) : null} className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />

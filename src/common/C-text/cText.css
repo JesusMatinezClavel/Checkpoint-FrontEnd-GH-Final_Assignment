@@ -3,6 +3,10 @@
     min-height: 1.5em;
 }
 
+.hidden {
+    display: none;
+}
+
 .text-title {
     color: rgb(99, 97, 97);
     font-size: 2em;
@@ -37,10 +41,46 @@
     border-bottom: .1em solid #cccccc;
 }
 
+.text-infoTitle-top {
+    height: 2em;
+    width: 100%;
+
+    display: flex;
+    justify-content: start;
+    align-items: center;
+
+    font-size: 1.6em;
+
+    border-bottom: .1em solid #cccccc;
+}
+
+.text-infoTitle-inputs {
+    height: 2em;
+    width: 15em;
+
+    display: flex;
+    justify-content: start;
+    align-items: center;
+
+    font-size: 1.3em;
+
+    border-bottom: .1em solid #cccccc;
+}
+
 .text-comment {
     display: flex;
     justify-content: center;
     align-items: start;
+}
+
+.text-subtitle{
+    height: auto;
+    width: 100%;
+
+    margin: .3em;
+    display: flex;
+    justify-content: start;
+    align-items: center;
 }
 
 .text-area {

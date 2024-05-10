@@ -2,7 +2,7 @@
 import './profile.css'
 
 // Lucide
-import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
+import { MessageSquare, Heart, SquareLibrary, X, Check } from "lucide-react";
 
 // Methods/Modules
 import { useState, useEffect } from "react";
@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userData, logout } from "../../app/slices/userSlice";
 
 // Api Calls
-import { deleteOwnProfileService, getAvatarService, getOwnProfileService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
+import { deleteOwnProfileService, deleteOwnUploadService, getAvatarService, getOwnProfileService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -66,6 +66,7 @@ export const Profile = () => {
     const [errorMsg, setErrorMsg] = useState("")
     const [showUpdate, setShowUpdate] = useState(false)
     const [showConfirm, setShowConfirm] = useState(false)
+    const [showDeleteUpload, setShowDeleteUpload] = useState(false)
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
@@ -99,12 +100,12 @@ export const Profile = () => {
         const getProfile = async () => {
             try {
                 const userFetched = await getOwnProfileService(userToken)
-                if (!userFetched.success) {
-                    throw new Error(userFetched.message)
+                if (!userFetched?.success) {
+                    throw new Error(userFetched?.message)
                 }
-                const avatarFetched = await getAvatarService(userFetched.data.avatar, userToken)
+                const avatarFetched = await getAvatarService(userFetched?.data?.avatar, userToken)
                 setUserAvatar(avatarFetched)
-                setUserInfo(userFetched.data)
+                setUserInfo(userFetched?.data)
                 setLoading((prevState) => ({
                     ...prevState,
                     infoLoading: false
@@ -117,7 +118,7 @@ export const Profile = () => {
                 }
             }
         }
-        if (userInfo === null) {
+        if (userInfo === null || userInfo?.uploads?.length !== userUploads?.length) {
             getProfile()
         }
     }, [userInfo])
@@ -136,12 +137,15 @@ export const Profile = () => {
         }
     }, [userInfo])
 
+    console.log(userUploads?.length);
+    console.log(userInfo?.uploads?.length);
+
     // Get User's Uploads
     useEffect(() => {
         const fetchUploads = async () => {
-            if (userInfo && userInfo.uploads.length !== 0 && !userUploads) {
+            if (userInfo && userInfo?.uploads?.length !== userUploads?.length) {
                 const urls = [];
-                for (const upload of userInfo.uploads) {
+                for (const upload of userInfo?.uploads) {
                     try {
                         const fetchedFile = await getUploadFileService(upload.id);
                         const uploadUrl = URL.createObjectURL(fetchedFile);
@@ -170,7 +174,7 @@ export const Profile = () => {
         if (e.target.files) {
             const file = e.target.files[0];
             if (file) {
-                const newFileName = `${userInfo.name}-${file.name}`;
+                const newFileName = `${userInfo?.name}-${file.name}`;
                 const newFile = new File([file], newFileName, { type: file.type });
                 setUpdateAvatar(newFile);
                 const reader = new FileReader();
@@ -255,7 +259,7 @@ export const Profile = () => {
                 confirmPassword: ""
             })
             setUpdateAvatar(null)
-            setAvatarPreview(userInfo.avatar)
+            setAvatarPreview(userInfo?.avatar)
         }
     }
 
@@ -281,30 +285,55 @@ export const Profile = () => {
     }
 
     const toggleDelete = () => {
-        console.log(showConfirm);
-        showConfirm
-            ? setShowConfirm(false)
-            : setShowConfirm(true)
+        setShowConfirm(prevState => !prevState)
+    }
+
+    /////////////////////////////////////////////////////////////////////// DELETE UPLOAD
+
+
+    const toggleDeleteUpload = () => {
+        setShowDeleteUpload(prevState => !prevState)
+    }
+
+    const deleteUploadInput = async (index) => {
+        try {
+            const fetched = await deleteOwnUploadService(userToken, userInfo?.uploads[index]?.id)
+            if (!fetched?.success) {
+                throw new Error(fetched?.message)
+            }
+            setUserInfo(prevState => ({
+                ...prevState,
+                uploads: prevState.uploads.filter((upload, i) => i !== index)
+            }));
+        } catch (error) {
+            if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }))
+                navigate('/')
+            } else {
+                console.log(error);
+            }
+        }
     }
 
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="profile-design">
+            {/* UPLOADS */}
             <div className="uploads-card">
                 {
                     userUploads === null
                         ? <CText title={'You have no models uploaded!'} />
                         : loading.uploadLoading
                             ? <CText title={'Loading'} />
-                            // UPLOADS
+                            // UPLOADS CARDS
                             : (
                                 <CCard className={'userUploads-card'}>
                                     {
                                         userUploads.map((upload, index) => {
                                             return (
-                                                <CCard key={`${index}-${userInfo.name}`}>
-                                                    <CText title={userInfo.uploads[index].name.split(".")[0]} />
+                                                <CCard key={`${index}-${userInfo?.name}`}>
+                                                    <CText title={userInfo?.uploads[index]?.name?.split(".")[0]} />
                                                     <Viewport asset={upload} />
                                                     <div className="info">
                                                         <div className="icons-info">
@@ -319,6 +348,14 @@ export const Profile = () => {
                                                             <SquareLibrary />
                                                             <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.posts?.length} />
                                                         </div>
+                                                        <div className="icons-info-delete">
+                                                            <X onClick={() => toggleDeleteUpload()} className={showDeleteUpload && !showConfirm ? 'hidden' : 'icon-closecard'} />
+                                                            <CText title={'delete upload?'} className={showDeleteUpload ? "" : 'hidden'} />
+                                                            <div className={showDeleteUpload ? "confirm" : 'hidden'}>
+                                                                <Check onClick={() => deleteUploadInput(index)} />
+                                                                <X onClick={() => toggleDeleteUpload()} />
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </CCard>
                                             )
@@ -328,6 +365,7 @@ export const Profile = () => {
                             )
                 }
             </div>
+            {/* USER */}
             <div className="user-card">
                 {
                     loading.infoLoading
@@ -336,7 +374,7 @@ export const Profile = () => {
                             <CCard className={'userInfo-Card'}>
                                 {
                                     showUpdate
-                                        // UPDATE PROFILE
+                                        // UPDATE PROFILE CARD
                                         ? (
                                             <form
                                                 action="http://localhost:4000/api/file/avatar"
@@ -347,24 +385,24 @@ export const Profile = () => {
                                                     <div className="update-info">
                                                         <div className="author-avatar">
                                                             <label
-                                                                disabled={errorMsg === "" ? false : errorMsg === updateDataError.avatarError ? false : true}
+                                                                disabled={errorMsg === "" ? false : errorMsg === updateDataError?.avatarError ? false : true}
                                                                 htmlFor='photo'
                                                                 className={'uploadPhotoInput'}
                                                                 onChange={(e) => inputHandler(e)}>
                                                                 <img
                                                                     src={userAvatar}
-                                                                    alt={`${userInfo.name}'s avatar`}
+                                                                    alt={`${userInfo?.name}'s avatar`}
                                                                     onError={(e) => {
                                                                         e.target.onerror = null;
                                                                         e.target.style.display = 'none';
                                                                         e.target.nextElementSibling.style.display = 'flex';
                                                                     }}
                                                                 />
-                                                                <div className="noAvatar" style={{ display: 'none' }}>{userInfo.name.split("")[0].toUpperCase()}</div>
+                                                                <div className="noAvatar" style={{ display: 'none' }}>{userInfo?.name?.split("")[0].toUpperCase()}</div>
                                                             </label>
                                                         </div>
                                                         <CInput
-                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError.avatarError ? false : true}
+                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError?.avatarError ? false : true}
                                                             className={'fileInputHidden'}
                                                             id={'photo'}
                                                             type={"file"}
@@ -374,38 +412,38 @@ export const Profile = () => {
                                                             onBlur={(e) => checkError(e)}
                                                         />
                                                         <CInput
-                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError.bioError ? false : true}
+                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError?.bioError ? false : true}
                                                             name={'bio'}
                                                             className={'text-area'}
                                                             type={'textarea'}
-                                                            value={updateData.bio || ""}
+                                                            value={updateData?.bio || ""}
                                                             placeholder={'input bio'}
                                                             onChange={(e) => inputHandler(e)}
                                                             onBlur={(e) => checkError(e)}
                                                         />
                                                         <CInput
-                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError.nameError ? false : true}
+                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError?.nameError ? false : true}
                                                             name={'name'}
                                                             type={'text'}
-                                                            value={updateData.name || ""}
+                                                            value={updateData?.name || ""}
                                                             placeholder={'input name'}
                                                             onChange={(e) => inputHandler(e)}
                                                             onBlur={(e) => checkError(e)}
                                                         />
                                                         <CInput
-                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError.emailError ? false : true}
+                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError?.emailError ? false : true}
                                                             name={'email'}
                                                             type={'text'}
-                                                            value={updateData.email || ""}
+                                                            value={updateData?.email || ""}
                                                             placeholder={'input email'}
                                                             onChange={(e) => inputHandler(e)}
                                                             onBlur={(e) => checkError(e)}
                                                         />
                                                         <CInput
-                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError.passwordError ? false : true}
+                                                            disabled={errorMsg === "" ? false : errorMsg === updateDataError?.passwordError ? false : true}
                                                             name={'password'}
                                                             type={'password'}
-                                                            value={updateData.password || ""}
+                                                            value={updateData?.password || ""}
                                                             placeholder={'input password'}
                                                             onChange={(e) => inputHandler(e)}
                                                             onBlur={(e) => checkError(e)}
@@ -423,7 +461,7 @@ export const Profile = () => {
                                                                 <CButton
                                                                     title={'confirm'}
                                                                     className={showConfirm ? 'button-delete-yes' : 'hidden'}
-                                                                    onClick={()=>deleteInput()} />
+                                                                    onClick={() => deleteInput()} />
                                                                 <CButton
                                                                     title={'cancel'}
                                                                     className={showConfirm ? 'button-delete-no' : 'hidden'}
@@ -435,41 +473,41 @@ export const Profile = () => {
                                                 </div>
                                             </form>
                                         )
-                                        // PROFILE
+                                        // PROFILE CARD
                                         : (
                                             <>
                                                 {
-                                                    userInfo.avatar !== `${userInfo.name}-undefined`
+                                                    userInfo?.avatar !== `${userInfo?.name}-undefined`
                                                         ? (
                                                             <div className="author-avatar">
                                                                 <label
-                                                                    disabled={errorMsg === "" ? false : errorMsg === updateDataError.avatarError ? false : true}
+                                                                    disabled={errorMsg === "" ? false : errorMsg === updateDataError?.avatarError ? false : true}
                                                                     htmlFor='photo'
                                                                     className={'uploadPhotoInput'}
                                                                     onChange={(e) => inputHandler(e)}
                                                                     onBlur={(e) => checkError(e)}>
                                                                     <img
                                                                         src={userAvatar}
-                                                                        alt={`${userInfo.name}'s avatar`}
+                                                                        alt={`${userInfo?.name}'s avatar`}
                                                                         onError={(e) => {
                                                                             e.target.onerror = null;
                                                                             e.target.style.display = 'none';
                                                                             e.target.nextElementSibling.style.display = 'flex';
                                                                         }}
                                                                     />
-                                                                    <div className="noAvatar" style={{ display: 'none' }}>{userInfo.name.split("")[0].toUpperCase()}</div>
+                                                                    <div className="noAvatar" style={{ display: 'none' }}>{userInfo?.name?.split("")[0].toUpperCase()}</div>
                                                                 </label>
                                                             </div>
                                                         ) : (
-                                                            <div className="noAvatar Profile">{userInfo.name.split("")[0].toUpperCase()}</div>
+                                                            <div className="noAvatar Profile">{userInfo?.name?.split("")[0].toUpperCase()}</div>
                                                         )
                                                 }
                                                 < CText className={'text-infoTitle'} title={'name'} />
-                                                <CText className={'text-userInfo'} title={userInfo.name} />
+                                                <CText className={'text-userInfo'} title={userInfo?.name} />
                                                 <CText className={'text-infoTitle'} title={'biography'} />
-                                                <CText className={'text-userInfo'} title={userInfo.bio} />
+                                                <CText className={'text-userInfo'} title={userInfo?.bio} />
                                                 <CText className={'text-infoTitle'} title={'email'} />
-                                                <CText className={'text-userInfo'} title={userInfo.email} />
+                                                <CText className={'text-userInfo'} title={userInfo?.email} />
                                                 <div className="update-button">
                                                     <CButton
                                                         title={'Update'}

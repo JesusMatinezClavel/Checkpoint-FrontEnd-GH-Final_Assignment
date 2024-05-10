@@ -179,7 +179,7 @@ export const getUploadFileService = async (uploadId) => {
         return error
     }
 }
-export const deleteOwnUploadService = async (token, fileId) => {
+export const deleteOwnUploadService = async (token, uploadId) => {
     try {
         const options = {
             method: 'DELETE',
@@ -188,7 +188,7 @@ export const deleteOwnUploadService = async (token, fileId) => {
             },
         }
 
-        const response = await fetch(`${root}/upload/delete`, options)
+        const response = await fetch(`${root}/upload/delete/${uploadId}`, options)
 
         const data = await response.json()
 
