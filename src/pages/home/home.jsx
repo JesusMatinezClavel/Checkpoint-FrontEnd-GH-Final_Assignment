@@ -13,7 +13,7 @@ import { userData } from "../../app/slices/userSlice";
 import { detailData, addUser, removeUser } from "../../app/slices/detailSlice";
 
 // Api Calls
-import { createUploadCommentService, getAllUploadsService, getAvatarService, getUploadFileService } from '../../services/apiCalls';
+import { createUploadCommentService, getAllUploadsService, getAvatarService, getUploadFileService, likeDislikeService } from '../../services/apiCalls';
 
 // Custom Elements
 import { Viewport } from "../../common/Three-Viewport/viewport";
@@ -45,22 +45,23 @@ export const Home = () => {
     const [toggleViewport, setToggleViewport] = useState(false)
     const [selectedCard, setSelectedCard] = useState(null)
     const [toggleComments, setToggleComments] = useState(false)
-    const [commentData, setCommentData] = useState({
-        message: ""
-    })
+    const [commentData, setCommentData] = useState({ message: "" })
+    // const [page, setPage] = useState({
+    //     from: 0,
+    //     to: 9
+    // })
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
     useEffect(() => {
         document.title = "Home"
         dispatch(removeUser({ userId: "" }))
-        console.log("HOME    ", userSelected);
     }, [])
 
     useEffect(() => {
         const fetchUploads = async () => {
             try {
-                const fetched = await getAllUploadsService();
+                const fetched = await getAllUploadsService(page);
                 if (!fetched.success) {
                     throw new Error(fetched?.message);
                 }
@@ -75,7 +76,7 @@ export const Home = () => {
             }
         };
 
-        if (!uploads) {
+        if (!uploads || page !== 1) {
             fetchUploads();
         }
     }, [uploads]);
@@ -170,6 +171,9 @@ export const Home = () => {
             if (!fetched.success) {
                 throw new Error(fetched.message)
             }
+            const updatedComments = [...uploads]
+            uploads[index].updatedComments = fetched.data.updatedComments
+            setUploads(updatedComments)
         } catch (error) {
             if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }))
@@ -180,6 +184,7 @@ export const Home = () => {
         }
     }
 
+    // go to user profile
     const goToUserProfile = (index) => {
         dispatch(addUser({
             userId: uploads[index].user.id,
@@ -188,19 +193,57 @@ export const Home = () => {
         navigate('/profile')
     }
 
-
+    // show loading
     if (loading) {
         return (
             <div>cargando...</div>
         )
     }
 
+    // like/dislike
+    const likeDislikeInput = async (index) => {
+        try {
+            const fetched = await likeDislikeService(userToken, uploads[index].id)
+            if (!fetched.success) {
+                throw new Error(fetched.message)
+            }
+            const updatedUploads = [...uploads]
+            updatedUploads[index].liked = fetched.data
+            setUploads(updatedUploads)
+        } catch (error) {
+            if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }))
+                navigate('/')
+            } else {
+                console.log(error);
+            }
+        }
+    }
+
+    // const upPage = () => {
+    //     setPage(prevState => ({
+    //         ...prevState,
+    //         from: prevState.from + 3,
+    //         to: prevState.to + 3
+    //     }));
+    // }
+    // const downPage = () => {
+    //     if (page.from > 0) { 
+    //         setPage(prevState => ({
+    //             ...prevState,
+    //             from: prevState.from - 3,
+    //             to: prevState.to - 3
+    //         }));
+    //     }
+    // }
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="home-design">
+            {/* <CButton onClick={() => upPage()} title={'page Up'} />
+            <CButton onClick={() => downPage()} title={'page Down'} /> */}
             <CCard className={'homeUploads-Card'}>
-                {uploadsConverted !== null && uploadsConverted.slice(0, 9).map((file, index) => (
+                {uploadsConverted !== null && uploadsConverted.slice(page.from, page.to).map((file, index) => (
                     selectedCard !== index
                         // ALL UPLOADS
                         ? (
@@ -231,7 +274,7 @@ export const Home = () => {
                                 <Viewport onClick={() => toggleDetail(index)} asset={file || asset} />
                                 <div className="info">
                                     <div className="icons-info">
-                                        <Heart />
+                                        <Heart onClick={() => likeDislikeInput(index)} />
                                         <CText className={'text-iconsInfo'} title={uploads[index].liked.length} />
                                     </div>
                                     <div className="icons-info">

@@ -14,7 +14,7 @@ import { userData, logout } from "../../app/slices/userSlice";
 import { detailData, addUser, removeUser } from "../../app/slices/detailSlice";
 
 // Api Calls
-import { deleteOwnProfileService, deleteOwnUploadService, getAvatarService, getOwnProfileService, getProfileByIdService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
+import { deleteOwnProfileService, deleteOwnUploadService, followUnfollowService, getAvatarService, getOwnProfileService, getProfileByIdService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -338,6 +338,25 @@ export const Profile = () => {
         }
     }
 
+    // follow/unfollow
+    const followUnfollowInput = async () => {
+        try {
+            if (userSelected) {
+                const fetched = await followUnfollowService(userToken, userInfo.id)
+                if (!fetched) {
+                    throw new Error(fetched.message)
+                }
+            }
+        } catch (error) {
+            if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }))
+                navigate('/')
+            } else {
+                console.log(error);
+            }
+        }
+    }
+
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
@@ -357,7 +376,7 @@ export const Profile = () => {
                                             return (
                                                 <CCard key={`${index}-${userInfo?.name}`}>
                                                     <CText title={userInfo?.uploads[index]?.name?.split(".")[0]} />
-                                                    <Viewport asset={upload} />                                                  
+                                                    <Viewport asset={upload} />
                                                 </CCard>
                                             )
                                         })
@@ -508,12 +527,12 @@ export const Profile = () => {
                                                                         <CText className={'text-iconsInfo'} title={userInfo?.uploadComments?.length} />
                                                                     </div>
                                                                     <div className="icons-info">
-                                                                        <UserCheck />
-                                                                        <CText className={'text-iconsInfo'} title={userInfo?.followers?.length} />
+                                                                        <UserCheck onClick={() => followUnfollowInput()} />
+                                                                        <CText className={'text-iconsInfo'} title={userInfo?.following?.length} />
                                                                     </div>
                                                                     <div className="icons-info">
                                                                         <UserRoundCheck />
-                                                                        <CText className={'text-iconsInfo'} title={userInfo?.following?.length} />
+                                                                        <CText className={'text-iconsInfo'} title={userInfo?.followers?.length} />
                                                                     </div>
                                                                 </div>
                                                             </div>

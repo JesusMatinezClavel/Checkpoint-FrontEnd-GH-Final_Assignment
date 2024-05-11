@@ -315,7 +315,7 @@ export const deleteOwnProfileService = async (token) => {
         return error
     }
 }
-export const likeDislikeService = async (token,uploadId)=>{
+export const likeDislikeService = async (token, uploadId) => {
     try {
         const options = {
             method: 'PUT',
@@ -323,7 +323,6 @@ export const likeDislikeService = async (token,uploadId)=>{
                 'Content-Type': 'Application/json',
                 'authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(updateData)
         }
         const response = await fetch(`${root}/user/like/${uploadId}`, options)
 
@@ -338,7 +337,7 @@ export const likeDislikeService = async (token,uploadId)=>{
         return error
     }
 }
-export const followUnfollowService = async(token,userId)=>{
+export const followUnfollowService = async (token, userId) => {
     try {
         const options = {
             method: 'PUT',
@@ -346,7 +345,6 @@ export const followUnfollowService = async(token,userId)=>{
                 'Content-Type': 'Application/json',
                 'authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(updateData)
         }
         const response = await fetch(`${root}/user/follow/${userId}`, options)
 

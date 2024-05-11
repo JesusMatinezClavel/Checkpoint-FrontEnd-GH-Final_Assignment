@@ -11,7 +11,8 @@ export const Viewport = ({ onClick, asset, reset }) => {
     const rendererRef = useRef(null);
     const sceneRef = useRef(new THREE.Scene())
     const cameraRef = useRef(new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000))
-    const lightRef = useRef(new THREE.PointLight(0xffffff, 10000))
+    const lightRef = useRef(new THREE.PointLight(0xffffff, 1000))
+
 
     useEffect(() => {
         const canvas = canvasRef.current
@@ -24,7 +25,7 @@ export const Viewport = ({ onClick, asset, reset }) => {
         sceneRef.current.add(ambientLight);
 
         cameraRef.current.position.set(20, 20, 50);
-        lightRef.current.position.set(20, 50, 50);
+        lightRef.current.position.set(0, 0, 75);
         controls.update();
 
         renderer.setSize(window.innerWidth / 4, window.innerHeight / 4);
