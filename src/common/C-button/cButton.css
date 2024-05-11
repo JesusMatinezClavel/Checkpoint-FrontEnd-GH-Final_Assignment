@@ -78,10 +78,10 @@
 
     border-top-right-radius:0em ;
     border-bottom-right-radius:0em ;
-    border-right: 0em;
+    border-right: .1em solid #cccccc70;
 
-    background-color:#cccccc ;
-    color: #292c37
+    background-color:#292c37;
+    color: #cccccc;
 }
 
 .button-delete-no{
@@ -94,7 +94,7 @@
 
     border-top-left-radius:0em ;
     border-bottom-left-radius:0em ;
-    border-left:0em;
+    border-left:.1em solid  #cccccc70;
 
     background-color:#292c37;
     color: #cccccc;

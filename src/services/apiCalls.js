@@ -30,14 +30,14 @@ export const logoutService = async (token) => {
         const options = {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'authorization': `Bearer ${token}`
             }
         }
         const response = await fetch(`${root}/auth/logout`, options)
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data
@@ -106,7 +106,7 @@ export const createNewUpload = async (token, uploadData) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data
@@ -193,7 +193,7 @@ export const deleteOwnUploadService = async (token, uploadId) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data
@@ -241,7 +241,28 @@ export const getOwnProfileService = async (token) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+export const getProfileByIdService = async (token, userId) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'Application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/user/profile/${userId}`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
         }
 
         return data
@@ -264,7 +285,7 @@ export const updateOwnProfileService = async (token, updateData) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data
@@ -286,7 +307,53 @@ export const deleteOwnProfileService = async (token) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+export const likeDislikeService = async (token,uploadId)=>{
+    try {
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'Application/json',
+                'authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updateData)
+        }
+        const response = await fetch(`${root}/user/like/${uploadId}`, options)
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+export const followUnfollowService = async(token,userId)=>{
+    try {
+        const options = {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'Application/json',
+                'authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(updateData)
+        }
+        const response = await fetch(`${root}/user/follow/${userId}`, options)
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
         }
 
         return data
@@ -314,7 +381,7 @@ export const createUploadCommentService = async (uploadId, commentData, token) =
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data
@@ -335,7 +402,7 @@ export const deleteUploadCommentService = async (commentId, token) => {
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.error)
+            throw new Error(data.message)
         }
 
         return data

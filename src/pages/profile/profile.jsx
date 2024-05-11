@@ -2,7 +2,7 @@
 import './profile.css'
 
 // Lucide
-import { MessageSquare, Heart, SquareLibrary, X, Check } from "lucide-react";
+import { MessageSquare, Heart, SquareLibrary, X, Check, UserCheck, UserRoundCheck } from "lucide-react";
 
 // Methods/Modules
 import { useState, useEffect } from "react";
@@ -11,9 +11,10 @@ import { useNavigate } from "react-router-dom";
 // Redux
 import { useSelector, useDispatch } from "react-redux";
 import { userData, logout } from "../../app/slices/userSlice";
+import { detailData, addUser, removeUser } from "../../app/slices/detailSlice";
 
 // Api Calls
-import { deleteOwnProfileService, deleteOwnUploadService, getAvatarService, getOwnProfileService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
+import { deleteOwnProfileService, deleteOwnUploadService, getAvatarService, getOwnProfileService, getProfileByIdService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -33,7 +34,9 @@ export const Profile = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
+    const rdxDetail = useSelector(detailData)
     const userToken = rdxUser?.credentials?.userToken
+    const userSelected = rdxDetail?.userId
     const reader = new FileReader()
     let file
     let newFile
@@ -72,13 +75,12 @@ export const Profile = () => {
 
     // Change document title
     useEffect(() => {
-        !rdxUser?.credentials?.userToken
-            ? (
-                dispatch(logout({ credentials: {} })),
-                navigate('/')
-            )
-            : (document.title = `${rdxUser?.credentials?.userTokenData?.userName}'s Profile`)
+        userSelected
+            ? document.title = `${rdxDetail?.userName}'s profile`
+            : document.title = `${rdxUser?.credentials?.userTokenData?.userName}'s profile`
     }, [])
+
+    console.log(userInfo?.uploads);
 
     // Link errors with errorsMsg
     useEffect(() => {
@@ -98,8 +100,14 @@ export const Profile = () => {
     // Get Profile
     useEffect(() => {
         const getProfile = async () => {
+            let userFetched
             try {
-                const userFetched = await getOwnProfileService(userToken)
+                if (!userSelected) {
+                    userFetched = await getOwnProfileService(userToken)
+                } else {
+                    userFetched = await getProfileByIdService(userToken, userSelected)
+                    console.log(userFetched);
+                }
                 if (!userFetched?.success) {
                     throw new Error(userFetched?.message)
                 }
@@ -111,7 +119,7 @@ export const Profile = () => {
                     infoLoading: false
                 }));
             } catch (error) {
-                if (error === "TOKEN NOT FOUND" || error === "TOKEN INVALID" || error === "TOKEN ERROR") {
+                if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
                     dispatch(logout({ credentials: {} }));
                 } else {
                     console.log(error);
@@ -216,13 +224,22 @@ export const Profile = () => {
             const updateInput = async () => {
                 try {
                     if (updateAvatar) {
-                        const uploaded = await uploadAvatarService(updateAvatar)
-                        if (!uploaded?.success) {
-                            setErrorMsg(uploaded?.message)
-                            setTimeout(() => {
-                                setErrorMsg("")
-                            }, 2000);
-                            throw new Error(uploaded?.error)
+                        try {
+                            const uploaded = await uploadAvatarService(updateAvatar)
+                            if (!uploaded?.success) {
+                                setErrorMsg(uploaded?.message)
+                                setTimeout(() => {
+                                    setErrorMsg("")
+                                }, 2000);
+                                throw new Error(uploaded?.message)
+                            }
+                        } catch (error) {
+                            if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                                dispatch(logout({ credentials: {} }))
+                                navigate('/')
+                            } else {
+                                console.log(error);
+                            }
                         }
                     }
                     const fetched = await updateOwnProfileService(userToken, updateData)
@@ -231,6 +248,7 @@ export const Profile = () => {
                         setTimeout(() => {
                             setErrorMsg("")
                         }, 2000);
+                        throw new Error(fetched?.message)
                     } else {
                         setUserInfo((prevState) => ({
                             ...prevState,
@@ -242,7 +260,12 @@ export const Profile = () => {
                         setShowUpdate(false)
                     }
                 } catch (error) {
-                    console.log(error);
+                    if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                        dispatch(logout({ credentials: {} }))
+                        navigate('/')
+                    } else {
+                        console.log(error);
+                    }
                 }
             }
             updateInput()
@@ -264,7 +287,7 @@ export const Profile = () => {
     /////////////////////////////////////////////////////////////////////// DELETE PROFILE
 
     // Delete Profile
-    const deleteInput = async () => {
+    const deleteProfileInput = async () => {
         try {
             const fetched = await deleteOwnProfileService(userToken)
             if (!fetched?.success) {
@@ -334,29 +357,7 @@ export const Profile = () => {
                                             return (
                                                 <CCard key={`${index}-${userInfo?.name}`}>
                                                     <CText title={userInfo?.uploads[index]?.name?.split(".")[0]} />
-                                                    <Viewport asset={upload} />
-                                                    <div className="info">
-                                                        <div className="icons-info">
-                                                            <Heart />
-                                                            <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.liked?.length} />
-                                                        </div>
-                                                        <div className="icons-info">
-                                                            <MessageSquare />
-                                                            <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.uploadComments?.length} />
-                                                        </div>
-                                                        <div className="icons-info">
-                                                            <SquareLibrary />
-                                                            <CText className={'text-iconsInfo'} title={userInfo?.uploads[index]?.posts?.length} />
-                                                        </div>
-                                                        <div className="icons-info-delete">
-                                                            <X onClick={() => toggleDeleteUpload()} className={showDeleteUpload && !showConfirm ? 'hidden' : 'icon-closecard'} />
-                                                            <CText title={'delete upload?'} className={showDeleteUpload ? "" : 'hidden'} />
-                                                            <div className={showDeleteUpload ? "confirm" : 'hidden'}>
-                                                                <Check onClick={() => deleteUploadInput(index)} />
-                                                                <X onClick={() => toggleDeleteUpload()} />
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <Viewport asset={upload} />                                                  
                                                 </CCard>
                                             )
                                         })
@@ -448,7 +449,7 @@ export const Profile = () => {
                                                             onChange={(e) => inputHandler(e)}
                                                             onBlur={(e) => checkError(e)}
                                                         />
-                                                        <div className="update-button">
+                                                        <div className={'update-button'}>
                                                             <CButton
                                                                 title={'Update'}
                                                                 onClick={errorMsg !== "" ? null : () => toggleUpdate()}
@@ -461,7 +462,7 @@ export const Profile = () => {
                                                                 <CButton
                                                                     title={'confirm'}
                                                                     className={showConfirm ? 'button-delete-yes' : 'hidden'}
-                                                                    onClick={() => deleteInput()} />
+                                                                    onClick={() => deleteProfileInput()} />
                                                                 <CButton
                                                                     title={'cancel'}
                                                                     className={showConfirm ? 'button-delete-no' : 'hidden'}
@@ -497,6 +498,24 @@ export const Profile = () => {
                                                                     />
                                                                     <div className="noAvatar" style={{ display: 'none' }}>{userInfo?.name?.split("")[0].toUpperCase()}</div>
                                                                 </label>
+                                                                <div className="info">
+                                                                    <div className="icons-info">
+                                                                        <Heart />
+                                                                        <CText className={'text-iconsInfo'} title={userInfo?.likes?.length} />
+                                                                    </div>
+                                                                    <div className="icons-info">
+                                                                        <MessageSquare />
+                                                                        <CText className={'text-iconsInfo'} title={userInfo?.uploadComments?.length} />
+                                                                    </div>
+                                                                    <div className="icons-info">
+                                                                        <UserCheck />
+                                                                        <CText className={'text-iconsInfo'} title={userInfo?.followers?.length} />
+                                                                    </div>
+                                                                    <div className="icons-info">
+                                                                        <UserRoundCheck />
+                                                                        <CText className={'text-iconsInfo'} title={userInfo?.following?.length} />
+                                                                    </div>
+                                                                </div>
                                                             </div>
                                                         ) : (
                                                             <div className="noAvatar Profile">{userInfo?.name?.split("")[0].toUpperCase()}</div>
@@ -508,7 +527,7 @@ export const Profile = () => {
                                                 <CText className={'text-userInfo'} title={userInfo?.bio} />
                                                 <CText className={'text-infoTitle'} title={'email'} />
                                                 <CText className={'text-userInfo'} title={userInfo?.email} />
-                                                <div className="update-button">
+                                                <div className={userSelected ? 'hidden' : 'update-button'}>
                                                     <CButton
                                                         title={'Update'}
                                                         onClick={errorMsg !== "" ? null : () => toggleUpdate()}

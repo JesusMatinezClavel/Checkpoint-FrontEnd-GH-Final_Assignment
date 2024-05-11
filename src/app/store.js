@@ -8,10 +8,12 @@ import storage from "redux-persist/lib/storage";
 
 // Redux Slices
 import userSlice from "./slices/userSlice";
+import detailSlice from "./slices/detailSlice";
 
 const reducers = combineReducers(
     {
-        user: userSlice
+        user: userSlice,
+        details: detailSlice
     }
 )
 

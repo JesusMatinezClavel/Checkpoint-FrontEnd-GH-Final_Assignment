@@ -5,10 +5,12 @@ import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
 
 // Methods/Modules
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Redux
 import { useSelector, useDispatch } from "react-redux";
 import { userData } from "../../app/slices/userSlice";
+import { detailData, addUser, removeUser } from "../../app/slices/detailSlice";
 
 // Api Calls
 import { createUploadCommentService, getAllUploadsService, getAvatarService, getUploadFileService } from '../../services/apiCalls';
@@ -27,9 +29,12 @@ import { CInput } from "../../common/C-input/cInput";
 export const Home = () => {
 
     /////////////////////////////////////////////////////////////////////// INSTANCES
+    const navigate = useNavigate()
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
-    const userToken = rdxUser.credentials.userToken
+    const rdxDetail = useSelector(detailData)
+    const userToken = rdxUser?.credentials?.userToken
+    const userSelected = rdxDetail?.userId
 
     /////////////////////////////////////////////////////////////////////// HOOKS
     const [uploads, setUploads] = useState(null)
@@ -47,6 +52,12 @@ export const Home = () => {
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
     useEffect(() => {
+        document.title = "Home"
+        dispatch(removeUser({ userId: "" }))
+        console.log("HOME    ", userSelected);
+    }, [])
+
+    useEffect(() => {
         const fetchUploads = async () => {
             try {
                 const fetched = await getAllUploadsService();
@@ -55,7 +66,12 @@ export const Home = () => {
                 }
                 setUploads(fetched.data);
             } catch (error) {
-                console.error(error);
+                if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                    dispatch(logout({ credentials: {} }))
+                    navigate('/')
+                } else {
+                    console.log(error);
+                }
             }
         };
 
@@ -75,7 +91,12 @@ export const Home = () => {
                     }
                     avatars.push(avatar)
                 } catch (error) {
-                    console.error(error)
+                    if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                        dispatch(logout({ credentials: {} }))
+                        navigate('/')
+                    } else {
+                        console.log(error);
+                    }
                 }
             }
             setUserAvatar(avatars)
@@ -97,7 +118,12 @@ export const Home = () => {
                         const uploadUrl = URL.createObjectURL(fetchedFile)
                         uploadUrls.push(uploadUrl);
                     } catch (error) {
-                        console.error(error)
+                        if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                            dispatch(logout({ credentials: {} }))
+                            navigate('/')
+                        } else {
+                            console.log(error);
+                        }
                         uploadUrls.push(null)
                     }
                 }
@@ -135,14 +161,13 @@ export const Home = () => {
             message: e.target.value
         }))
     }
-    console.log(commentData);
     const createCommentInput = async (index) => {
         try {
             const fetched = await createUploadCommentService(uploads[index]?.id, commentData, userToken)
             setCommentData((prevState) => ({
                 message: ""
             }))
-            if(!fetched.success){
+            if (!fetched.success) {
                 throw new Error(fetched.message)
             }
         } catch (error) {
@@ -153,6 +178,14 @@ export const Home = () => {
                 console.log(error);
             }
         }
+    }
+
+    const goToUserProfile = (index) => {
+        dispatch(addUser({
+            userId: uploads[index].user.id,
+            userName: uploads[index].user.name
+        }))
+        navigate('/profile')
     }
 
 
@@ -180,6 +213,7 @@ export const Home = () => {
                                                     <img
                                                         src={userAvatar[index]}
                                                         alt={`${uploads[index]?.user?.name}'s avatar`}
+                                                        onClick={() => goToUserProfile(index)}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
                                                             e.target.style.display = 'none';

@@ -25,6 +25,7 @@ import { CInput } from "../C-input/cInput";
 import { CButton } from "../C-button/cButton";
 import { CText } from '../C-text/cText';
 import { Viewport } from "../Three-Viewport/viewport";
+import { removeUser } from '../../app/slices/detailSlice';
 
 export const Header = () => {
 
@@ -86,12 +87,9 @@ export const Header = () => {
         passwordError: ""
     })
 
-    /////////////////////////////////////////////////////////////////////// LOGIC
-    // Change document title
-    useEffect(() => {
-        document.title = "Welcome";
-    }, [])
+    /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
+    /////////////////////////////////////////////////////////////////////// LOGIC
     // Input Handler
     const inputHandler = (e) => {
         showLogin
@@ -302,23 +300,29 @@ export const Header = () => {
                 })
             )
     }
+
     /////////////////////////////////////////////////////////////////////// LOGOUT
     // Logout Call
     const logoutInput = async () => {
         try {
             const fetched = await logoutService(userToken)
+            // console.log(fetched);
             if (!fetched.success) {
                 throw new Error(fetched.message)
             }
             dispatch(logout({ credentials: {} }))
             navigate('/')
         } catch (error) {
-            console.log(error);
+            if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }))
+                navigate('/')
+            } else {
+                console.log(error);
+            }
         }
     }
 
     /////////////////////////////////////////////////////////////////////// REGISTER
-
     // Register Call
     const registerInput = async () => {
         try {
@@ -328,7 +332,7 @@ export const Header = () => {
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
-                throw new Error(Uploaded.error)
+                throw new Error(Uploaded.message)
             }
             const fetched = await registerService(registerData)
             if (!fetched.success) {
@@ -393,6 +397,10 @@ export const Header = () => {
     /////////////////////////////////////////////////////////////////////// PROFILE
 
     const goToProfile = () => {
+        dispatch(removeUser({
+            userId: "",
+            userName: ""
+        }))
         navigate('/profile')
     }
 
@@ -406,7 +414,7 @@ export const Header = () => {
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
-                throw new Error(uploaded.error)
+                throw new Error(uploaded.message)
             }
             const fetched = await createNewUpload(userToken, uploadData)
             if (!fetched.success) {
@@ -414,12 +422,12 @@ export const Header = () => {
                 setTimeout(() => {
                     setErrorMsg("")
                 }, 2000);
-                throw new Error(fetched.error)
+                throw new Error(fetched.message)
             }
             setShowUpload(false)
         } catch (error) {
             if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
-                dispatch(logout({ credentials: {} }));
+                dispatch(logout({ credentials: {} }))
                 navigate('/')
             } else {
                 console.log(error);

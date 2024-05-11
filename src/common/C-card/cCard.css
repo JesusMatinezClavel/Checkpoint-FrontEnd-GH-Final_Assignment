@@ -203,12 +203,12 @@
     align-items: center;
     flex-direction: row;
 }
-.info .icons-info {
+.icons-info {
 
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: row;
+    flex-direction: column;
 
     height: auto;
     width: auto;
@@ -259,6 +259,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 }
 .author-avatar img {
     border-radius: 5em;
