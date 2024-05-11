@@ -131,14 +131,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: row;
+
+}
+
+.homeViewport-Card {
+    
+    margin: 1em;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
 }
-
-.homeViewport-Card {
+.homeViewport-Card-detail {
+    
     margin: 1em;
 
     display: flex;
@@ -147,16 +153,35 @@
 }
 
 .UploadComments-card {
-    height: auto;
-    width: auto;
+    height: 25em;
+    width: 25em;
 
-    background-color: #9f111b;
+    margin:-1em;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+
+    background-color:#cccccc3a;
 }
 
-.comments-card {
+.comment-card {
     display: flex;
     justify-content: center;
     align-items: start;
+
+    background-color:#cccccc;
+
+    color:#292c37;
+
+    border-top-left-radius: 0em;
+    border-bottom-left-radius: 0em;
+
+    margin-bottom: .2em;
+
+
 }
 
 .newComment {
@@ -174,7 +199,6 @@
     align-items: center;
     flex-direction: row;
 }
-
 .info .icons-info {
 
     display: flex;
@@ -187,7 +211,6 @@
 
     padding: .2em .2em;
 }
-
 .homeViewport-Card .author {
     height: 5em;
     width: 90%;
@@ -197,7 +220,15 @@
     align-items: center;
     flex-direction: row;
 }
+.homeViewport-Card-detail .author {
+    height: 5em;
+    width: 90%;
 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+}
 .homeViewport-Card .author-avatar {
     height: 4em;
     width: 4em;
@@ -206,7 +237,14 @@
     justify-content: center;
     align-items: center;
 }
+.homeViewport-Card-detail .author-avatar {
+    height: 4em;
+    width: 4em;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .author-avatar {
 
     height: auto;
@@ -218,7 +256,6 @@
     justify-content: center;
     align-items: center;
 }
-
 .author-avatar img {
     border-radius: 5em;
     border: .1em solid #cccccc;
@@ -227,8 +264,6 @@
     width: 100%;
     object-fit: cover;
 }
-
-
 .user-card,
 .uploads-card {
     min-height: 80vh;
@@ -240,11 +275,9 @@
     border-right: .1em solid #292c37;
     border-left: .1em solid #292c37;
 }
-
 .user-card {
     width: 25vw;
 }
-
 .userInfo-card {
 
     height: 10000em;

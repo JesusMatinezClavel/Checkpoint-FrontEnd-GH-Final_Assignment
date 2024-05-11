@@ -71,9 +71,43 @@
     display: flex;
     justify-content: center;
     align-items: start;
+
+    margin: 1em;
 }
 
-.text-subtitle{
+.text-comments-author {
+    text-align: left;
+    float: left;
+    width: 95%;
+
+    border-bottom: .1em solid #292c37;
+}
+
+.text-comments-message {
+    text-align: right;
+    float: right;
+    width: 95%;
+
+    margin-bottom: .5em
+}
+
+.text-comments-author-inverse {
+    text-align: right;
+    float: right;
+    width: 95%;
+
+    border-bottom: .1em solid #292c37;
+}
+
+.text-comments-message-inverse {
+    text-align: left;
+    float: left;
+    width: 95%;
+
+    margin-bottom: .5em
+}
+
+.text-subtitle {
     height: auto;
     width: 100%;
 

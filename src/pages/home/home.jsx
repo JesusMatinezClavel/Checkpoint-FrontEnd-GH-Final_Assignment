@@ -33,7 +33,7 @@ export const Home = () => {
 
     /////////////////////////////////////////////////////////////////////// HOOKS
     const [uploads, setUploads] = useState(null)
-    const [userAvatar, setUserAvatar] = useState([])
+    const [userAvatar, setUserAvatar] = useState(null)
     const [uploadsConverted, setUploadsConverted] = useState(null)
     const [loading, setLoading] = useState(true)
     const [asset, setAset] = useState('../../models/Brick.fbx')
@@ -66,16 +66,19 @@ export const Home = () => {
             const avatars = [];
             for (const upload of uploads) {
                 try {
-                    const avatar = await getAvatarService(upload?.user.avatar, userToken)
+                    const avatar = await getAvatarService(upload?.user?.avatar)
+                    if (avatar.message === 'Network response was not ok:') {
+                        console.log('Error loading avatar');
+                    }
                     avatars.push(avatar)
                 } catch (error) {
                     console.error(error)
                 }
             }
-            setUserAvatar(prevState => [...prevState, ...avatars])
+            setUserAvatar(avatars)
         }
 
-        if (uploads?.length > 0 && (!userAvatar || userAvatar?.length === 0)) {
+        if (uploads?.length !== userAvatar?.length && !userAvatar) {
             fetchAvatars();
         }
 
@@ -84,47 +87,47 @@ export const Home = () => {
     useEffect(() => {
         const convertUploads = async () => {
             if (uploads && !uploadsConverted) {
-                try {
-                    const uploadUrls = await Promise.all(uploads.map(async (upload) => {
-                        try {
-                            const fetchedFile = await getUploadFileService(upload.id);
-                            const uploadUrl = URL.createObjectURL(fetchedFile);
-                            return uploadUrl;
-                        } catch (error) {
-                            console.error(error);
-                            return null;
-                        }
-                    }));
-                    const validUrls = uploadUrls.filter(url => url !== null);
-                    setUploadsConverted(validUrls);
-                    setLoading(false);
-                } catch (error) {
-                    console.error('Error processing uploads:', error);
+                const uploadUrls = []
+                for (const upload of uploads) {
+                    try {
+                        const fetchedFile = await getUploadFileService(upload.id)
+                        const uploadUrl = URL.createObjectURL(fetchedFile)
+                        uploadUrls.push(uploadUrl);
+                    } catch (error) {
+                        console.error(error)
+                        uploadUrls.push(null)
+                    }
                 }
+                const validUrls = uploadUrls.filter(url => url !== null)
+                setUploadsConverted(validUrls);
+                setLoading(false)
             }
         }
         convertUploads();
-    }, [uploads, uploadsConverted]);
+    }, [uploads, uploadsConverted])
 
     /////////////////////////////////////////////////////////////////////// LOGIC
 
+    console.log(userAvatar)
+
 
     const hideCard = (e) => {
-        e.target.classList === "viewportDetail"
+        console.log(e.target.classList);
+        e.target.classList[0] === "viewportDetail"
             ? (setToggleViewport(false),
                 setSelectedCard(null))
             : null
     }
-
     const toggleDetail = (index) => {
         setSelectedCard(index)
         setToggleViewport(prevState => !prevState)
     }
-
     const showComments = (index) => {
-        setSelectedCard(index)
-        setToggleViewport(prevState => !prevState)
-        setToggleComments(prevState => !prevState)
+        toggleViewport
+            ? (
+                setToggleComments(prevState => !prevState)
+            )
+            : null
     }
     const showOnlyComments = () => {
         setToggleComments(prevState => !prevState)
@@ -153,17 +156,17 @@ export const Home = () => {
                                                 <div className="author-avatar">
                                                     <img
                                                         src={userAvatar[index]}
-                                                        alt={`${uploads[index].user.name}'s avatar`}
+                                                        alt={`${uploads[index]?.user?.name}'s avatar`}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
                                                             e.target.style.display = 'none';
                                                             e.target.nextElementSibling.style.display = 'flex';
                                                         }}
                                                     />
-                                                    <div className="noAvatar" style={{ display: 'none' }}>{uploads[index].user.name.split("")[0].toUpperCase()}</div>
+                                                    <div className="noAvatar" style={{ display: 'none' }}>{uploads[index]?.user?.name.split("")[0].toUpperCase()}</div>
                                                 </div>
                                             ) : (
-                                                <div className="noAvatar">{uploads[index].user.name.split("")[0].toUpperCase()}</div>
+                                                <div className="noAvatar">{uploads[index]?.user?.name.split("")[0].toUpperCase()}</div>
                                             )
                                     }
                                     <CText title={uploads[index].name.split(".")[0]} />
@@ -195,7 +198,7 @@ export const Home = () => {
                         // DETAIL UPLOAD
                         : (
                             <div onClick={(e) => hideCard(e)} className="viewportDetail">
-                                <CCard key={`${index}${uploads[index].name} copy`} className='homeViewport-Card'>
+                                <CCard key={`${index}${uploads[index].name} copy`} className='homeViewport-Card-detail'>
                                     <div className="closeCard"><X onClick={() => toggleDetail()} className='icon-closeCard' /></div>
                                     <div className="author">
                                         {
@@ -203,7 +206,7 @@ export const Home = () => {
                                                 ? (
                                                     <div className="author-avatar">
                                                         <img
-                                                            src={uploads[index].user.avatar}
+                                                            src={userAvatar[index]}
                                                             alt={`${uploads[index].user.name}'s avatar`}
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
@@ -217,7 +220,7 @@ export const Home = () => {
                                                     <div className="noAvatar">{uploads[index].user.name.split("")[0].toUpperCase()}</div>
                                                 )
                                         }
-                                        <CText title={uploads[index].name} />
+                                        <CText title={uploads[index].name.split(".")[0]} />
                                     </div>
                                     {
                                         <Viewport asset={file || asset} />
@@ -244,21 +247,24 @@ export const Home = () => {
                                     toggleComments
                                         ? (
                                             <div className="UploadComments-card">
+                                                <div className="newComment">
+                                                    <CInput
+                                                        type={'textarea'}
+                                                        
+                                                    />
+                                                    <CButton title={'New Comment'} />
+                                                </div>
                                                 {
                                                     uploads[index].uploadComments.map((comment, index) => {
                                                         return (
                                                             <CCard key={`${index}-${uploads[index].user.name}`} className={'comment-card'}>
-                                                                <CText className={'text-comments'} title={comment.message} />
+                                                                <CText key={index} className={index % 2 === 0 ? 'text-comments-author-inverse' : 'text-comments-author'} title={`${comment.message.split(":")[0]}`} />
+                                                                <CText key={index} className={index % 2 === 0 ? 'text-comments-message-inverse' : 'text-comments-message'} title={comment.message.split(":")[1]} />
                                                             </CCard>
                                                         )
                                                     })
                                                 }
-                                                <div className="newComment">
-                                                    <CInput
-                                                        type={'textarea'}
-                                                    />
-                                                    <CButton title={'New Comment'} />
-                                                </div>
+
                                             </div>
                                         )
                                         : null

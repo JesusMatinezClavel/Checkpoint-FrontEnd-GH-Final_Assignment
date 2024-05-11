@@ -103,7 +103,7 @@ export const Profile = () => {
                 if (!userFetched?.success) {
                     throw new Error(userFetched?.message)
                 }
-                const avatarFetched = await getAvatarService(userFetched?.data?.avatar, userToken)
+                const avatarFetched = await getAvatarService(userFetched?.data?.avatar)
                 setUserAvatar(avatarFetched)
                 setUserInfo(userFetched?.data)
                 setLoading((prevState) => ({
@@ -136,9 +136,6 @@ export const Profile = () => {
             getAvatar()
         }
     }, [userInfo])
-
-    console.log(userUploads?.length);
-    console.log(userInfo?.uploads?.length);
 
     // Get User's Uploads
     useEffect(() => {
