@@ -294,3 +294,53 @@ export const deleteOwnProfileService = async (token) => {
         return error
     }
 }
+
+
+// UPLOAD COMMENTS
+
+export const createUploadCommentService = async (uploadId, commentData, token) => {
+    try {
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(commentData)
+        }
+        console.log(options);
+        const response = await fetch(`${root}/comment/upload/new/${uploadId}`, options)
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+export const deleteUploadCommentService = async (commentId, token) => {
+    try {
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'authorization': `Bearer ${token}`
+            },
+        }
+        const response = await fetch(`${root}/comment/upload/delete/${commentId}}`, options)
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.error)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+

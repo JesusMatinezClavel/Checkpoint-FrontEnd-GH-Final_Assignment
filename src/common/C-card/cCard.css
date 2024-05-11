@@ -168,6 +168,9 @@
 }
 
 .comment-card {
+    height: auto;
+    width: auto;
+
     display: flex;
     justify-content: center;
     align-items: start;
@@ -175,6 +178,7 @@
     background-color:#cccccc;
 
     color:#292c37;
+    border-radius: 5em;
 
     border-top-left-radius: 0em;
     border-bottom-left-radius: 0em;

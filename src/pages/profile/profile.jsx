@@ -123,6 +123,7 @@ export const Profile = () => {
         }
     }, [userInfo])
 
+    // Get Avatar
     useEffect(() => {
         const getAvatar = async () => {
             try {
@@ -281,17 +282,19 @@ export const Profile = () => {
         }
     }
 
+    // Toggle Delete button
     const toggleDelete = () => {
         setShowConfirm(prevState => !prevState)
     }
 
     /////////////////////////////////////////////////////////////////////// DELETE UPLOAD
 
-
+    // Toggle delete update button
     const toggleDeleteUpload = () => {
         setShowDeleteUpload(prevState => !prevState)
     }
 
+    // Delete upload
     const deleteUploadInput = async (index) => {
         try {
             const fetched = await deleteOwnUploadService(userToken, userInfo?.uploads[index]?.id)

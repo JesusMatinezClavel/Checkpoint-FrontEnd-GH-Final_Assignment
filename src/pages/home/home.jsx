@@ -11,7 +11,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userData } from "../../app/slices/userSlice";
 
 // Api Calls
-import { getAllUploadsService, getAvatarService, getUploadFileService } from '../../services/apiCalls';
+import { createUploadCommentService, getAllUploadsService, getAvatarService, getUploadFileService } from '../../services/apiCalls';
 
 // Custom Elements
 import { Viewport } from "../../common/Three-Viewport/viewport";
@@ -40,6 +40,9 @@ export const Home = () => {
     const [toggleViewport, setToggleViewport] = useState(false)
     const [selectedCard, setSelectedCard] = useState(null)
     const [toggleComments, setToggleComments] = useState(false)
+    const [commentData, setCommentData] = useState({
+        message: ""
+    })
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
@@ -108,30 +111,50 @@ export const Home = () => {
 
     /////////////////////////////////////////////////////////////////////// LOGIC
 
-    console.log(userAvatar)
-
-
+    // hide cards
     const hideCard = (e) => {
-        console.log(e.target.classList);
         e.target.classList[0] === "viewportDetail"
             ? (setToggleViewport(false),
                 setSelectedCard(null))
             : null
     }
+    // toggle viewport detail
     const toggleDetail = (index) => {
         setSelectedCard(index)
         setToggleViewport(prevState => !prevState)
     }
-    const showComments = (index) => {
-        toggleViewport
-            ? (
-                setToggleComments(prevState => !prevState)
-            )
+    // togge comments
+    const showOnlyComments = () => {
+        userToken
+            ? setToggleComments(prevState => !prevState)
             : null
     }
-    const showOnlyComments = () => {
-        setToggleComments(prevState => !prevState)
+    // Create comment
+    const inputHandler = (e) => {
+        setCommentData((prevState) => ({
+            message: e.target.value
+        }))
     }
+    console.log(commentData);
+    const createCommentInput = async (index) => {
+        try {
+            const fetched = await createUploadCommentService(uploads[index]?.id, commentData, userToken)
+            setCommentData((prevState) => ({
+                message: ""
+            }))
+            if(!fetched.success){
+                throw new Error(fetched.message)
+            }
+        } catch (error) {
+            if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                dispatch(logout({ credentials: {} }))
+                navigate('/')
+            } else {
+                console.log(error);
+            }
+        }
+    }
+
 
     if (loading) {
         return (
@@ -244,22 +267,26 @@ export const Home = () => {
                                     </div>
                                 </CCard>
                                 {
+                                    // UPLOAD COMMENTS
                                     toggleComments
                                         ? (
                                             <div className="UploadComments-card">
                                                 <div className="newComment">
                                                     <CInput
                                                         type={'textarea'}
-                                                        
+                                                        name={'message'}
+                                                        value={commentData.message || ""}
+                                                        placeholder={'input new comment'}
+                                                        onChange={(e) => inputHandler(e)}
                                                     />
-                                                    <CButton title={'New Comment'} />
+                                                    <CButton onClick={() => createCommentInput(index)} title={'New Comment'} />
                                                 </div>
                                                 {
                                                     uploads[index].uploadComments.map((comment, index) => {
                                                         return (
-                                                            <CCard key={`${index}-${uploads[index].user.name}`} className={'comment-card'}>
-                                                                <CText key={index} className={index % 2 === 0 ? 'text-comments-author-inverse' : 'text-comments-author'} title={`${comment.message.split(":")[0]}`} />
-                                                                <CText key={index} className={index % 2 === 0 ? 'text-comments-message-inverse' : 'text-comments-message'} title={comment.message.split(":")[1]} />
+                                                            <CCard key={`${index}-${uploads[index].user.email} comment`} className={'comment-card'}>
+                                                                <CText className={index % 2 !== 0 ? 'text-comments-author-inverse' : 'text-comments-author'} title={`${comment.message.split(":")[0]}`} />
+                                                                <CText className={index % 2 !== 0 ? 'text-comments-message-inverse' : 'text-comments-message'} title={comment.message.split(":")[1]} />
                                                             </CCard>
                                                         )
                                                     })

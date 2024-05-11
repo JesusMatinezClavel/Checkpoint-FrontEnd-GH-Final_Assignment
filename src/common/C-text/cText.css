@@ -73,6 +73,7 @@
     align-items: start;
 
     margin: 1em;
+
 }
 
 .text-comments-author {
@@ -80,13 +81,15 @@
     float: left;
     width: 95%;
 
-    border-bottom: .1em solid #292c37;
+    font-weight: 700;
+
+    border-bottom: .1em solid #292c371a;
 }
 
 .text-comments-message {
     text-align: right;
     float: right;
-    width: 95%;
+    width: 90%;
 
     margin-bottom: .5em
 }
@@ -96,15 +99,18 @@
     float: right;
     width: 95%;
 
-    border-bottom: .1em solid #292c37;
+    font-weight: 700;
+
+    border-bottom: .1em solid #292c371a;
 }
 
 .text-comments-message-inverse {
     text-align: left;
     float: left;
-    width: 95%;
+    width: 90%;
 
-    margin-bottom: .5em
+    margin-bottom: .5em;
+    padding-left: .6em;
 }
 
 .text-subtitle {
