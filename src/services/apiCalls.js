@@ -1,7 +1,6 @@
 
 
-// export const root = 'http://localhost:4000/api'
-export const root = 'https://master.d21aov1e0k6gws.amplifyapp.com'
+export const root = 'http://localhost:4000/api'
 
 /// AUTH
 export const loginService = async (loginData) => {
