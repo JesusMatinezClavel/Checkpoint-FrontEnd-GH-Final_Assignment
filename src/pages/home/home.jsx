@@ -265,7 +265,7 @@ export const Home = () => {
     return (
         <div className="home-design">
             <div className="home-title">
-                <img src="../../../img/Checkpoint-title.png" alt="" />
+                <img src="img/Checkpoint-title.png" alt="" />
             </div>
             <CText className={'errorPage'} title={errorMsg} />
             <div className="page">
