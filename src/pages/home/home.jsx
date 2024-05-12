@@ -6,6 +6,7 @@ import { MessageSquare, Heart, HeartOff, SquareLibrary, X, Download, ArrowLeftCi
 // Methods/Modules
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import path from "path";
 
 // Redux
 import { useSelector, useDispatch } from "react-redux";
@@ -48,6 +49,7 @@ export const Home = () => {
     const [commentData, setCommentData] = useState({ message: "" })
     const [page, setPage] = useState(1)
     const [errorMsg, setErrorMsg] = useState("")
+    const [title]=useState('../../../img/Checkpoint-title.png')
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
@@ -264,7 +266,7 @@ export const Home = () => {
     return (
         <div className="home-design">
             <div className="home-title">
-                <img src="img/Checkpoint-title.png" alt="" />
+                <img src={title} alt="Checkpoint's title" />
             </div>
             <CText className={'errorPage'} title={errorMsg} />
             <div className="page">
