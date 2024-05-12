@@ -6,7 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { useEffect, useRef } from 'react';
 import { LoadingManager } from 'three';
 
-export const Viewport = ({ onClick, asset, reset }) => {
+export const Viewport = ({ onClick, asset, viewportSize }) => {
     const canvasRef = useRef(null)
     const rendererRef = useRef(null);
     const sceneRef = useRef(new THREE.Scene())
@@ -16,9 +16,9 @@ export const Viewport = ({ onClick, asset, reset }) => {
 
     useEffect(() => {
         const canvas = canvasRef.current
-        const renderer = new THREE.WebGLRenderer({ canvas });
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         const controls = new OrbitControls(cameraRef.current, renderer.domElement);
-        const ambientLight = new THREE.AmbientLight();
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
 
         sceneRef.current.add(new THREE.AxesHelper(0.4));
         sceneRef.current.add(lightRef.current);
@@ -28,14 +28,17 @@ export const Viewport = ({ onClick, asset, reset }) => {
         lightRef.current.position.set(0, 0, 75);
         controls.update();
 
-        renderer.setSize(window.innerWidth / 4, window.innerHeight / 4);
+        const defaultSize = { width: window.innerWidth / 4, height: window.innerHeight / 4 };
+        const size = viewportSize || defaultSize;
+        renderer.setSize(size.width, size.height);
+        renderer.setClearColor(0x404040);
         renderer.domElement.classList.add('viewport');
         rendererRef.current = renderer;
 
         const onWindowResize = () => {
-            cameraRef.current.aspect = window.innerWidth / window.innerHeight;
+            cameraRef.current.aspect = size;
             cameraRef.current.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth / 4, window.innerHeight / 4);
+            renderer.setSize(size);
         };
 
         window.addEventListener('resize', onWindowResize, false);

@@ -137,7 +137,7 @@ export const uploadModelService = async (token, uploadFile) => {
         return error
     }
 }
-export const getAllUploadsService = async () => {
+export const getAllUploadsService = async (page) => {
     try {
         const options = {
             method: 'GET',
@@ -145,11 +145,11 @@ export const getAllUploadsService = async () => {
                 'Content-Type': 'application/octet-binary'
             }
         }
-        const response = await fetch(`${root}/upload/all`, options)
+        const response = await fetch(`${root}/upload/all?page=${page}`, options)
         const data = await response.json()
 
         if (!data.success) {
-            throw new Error(data.message)
+            throw new Error(data.error)
         }
 
         return data
@@ -176,7 +176,7 @@ export const getUploadFileService = async (uploadId) => {
 
         return blob
     } catch (error) {
-        return error
+        throw new Error('Failed to get the file!')
     }
 }
 export const deleteOwnUploadService = async (token, uploadId) => {
@@ -409,3 +409,47 @@ export const deleteUploadCommentService = async (commentId, token) => {
     }
 }
 
+
+// SUPERADMIN
+
+export const getAllUsersBySuperadminService = async (token, page) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/user/superadmin?page=${page}`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
+
+export const deleteUserBySuperadmin = async (token, userId) => {
+    try {
+        const options = {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        const response = await fetch(`${root}/user/superadmin/${userId}`, options)
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}

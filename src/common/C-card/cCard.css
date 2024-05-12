@@ -4,7 +4,7 @@
 
     padding: .2em .2em;
 
-    background-color: #292c37;
+    background-color: #292c376c;
 
     color: #cccccc;
 
@@ -28,7 +28,9 @@
     height: auto;
     width: auto;
 
-    padding: 1em 1em;
+    padding: 1em 2.5em;
+
+    background-color: #292c37;
 
     position: absolute;
 
@@ -44,8 +46,8 @@
 }
 
 .closeCard {
-    height: 10%;
-    width: 23em;
+    height: 1%;
+    width: 95%;
 
     display: flex;
     justify-content: end;
@@ -132,11 +134,9 @@
     justify-content: center;
     align-items: center;
     flex-direction: row;
-
 }
 
-.homeViewport-Card {
-    
+.homeViewport-Card {   
     margin: 1em;
 
     display: flex;
@@ -144,25 +144,26 @@
     align-items: center;
 }
 .homeViewport-Card-detail {
+
+    background-color: #292c37;
     
     margin: 1em;
 
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }
 
-.UploadComments-card {
-    height: 25em;
+.uploadComments-card {
+    height: 65%;
     width: 25em;
 
-    margin:-1em;
+    margin-left:-1em;
+
+    padding-top:-1em ;
 
     overflow-y: auto;
     overflow-x: hidden;
-
-    border-top-right-radius: 1em;
-    border-bottom-right-radius: 1em;
 
     background-color:#cccccc3a;
 }
@@ -178,14 +179,12 @@
     background-color:#cccccc;
 
     color:#292c37;
-    border-radius: 5em;
+    border-radius: .5em;
 
     border-top-left-radius: 0em;
     border-bottom-left-radius: 0em;
 
     margin-bottom: .2em;
-
-
 }
 
 .newComment {
@@ -193,9 +192,7 @@
     justify-content: center;
     align-items: center;
 
-    color: #292c37;
 }
-
 .info {
     width: 95%;
     display: flex;
@@ -214,6 +211,8 @@
     width: auto;
 
     padding: .2em .2em;
+
+    cursor: pointer;
 }
 .homeViewport-Card .author {
     height: 5em;
@@ -223,6 +222,7 @@
     justify-content: space-between;
     align-items: center;
     flex-direction: row;
+
 }
 .homeViewport-Card-detail .author {
     height: 5em;
@@ -268,6 +268,8 @@
     height: auto;
     width: 100%;
     object-fit: cover;
+
+    cursor: pointer;
 }
 .user-card,
 .uploads-card {
@@ -368,4 +370,21 @@
     margin-bottom:1em;
 
     background-color: #cccccc;
+}
+
+.page {
+    height: auto;
+    width: auto;
+
+    border-radius: 0em;
+    background-color: #cccccc;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+.page-info{
+    margin-left: 1em;
+    margin-right: 1em;
 }

@@ -1,7 +1,7 @@
 // Styles
 
 // Lucide
-import { MessageSquare, Heart, SquareLibrary, X, Download } from "lucide-react";
+import { MessageSquare, Heart, HeartOff, SquareLibrary, X, Download, ArrowLeftCircle, ArrowRightCircle } from "lucide-react";
 
 // Methods/Modules
 import { useState, useEffect } from "react";
@@ -33,7 +33,7 @@ export const Home = () => {
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
     const rdxDetail = useSelector(detailData)
-    const userToken = rdxUser?.credentials?.userToken
+    const userToken = rdxUser.credentials.userToken
     const userSelected = rdxDetail?.userId
 
     /////////////////////////////////////////////////////////////////////// HOOKS
@@ -46,10 +46,8 @@ export const Home = () => {
     const [selectedCard, setSelectedCard] = useState(null)
     const [toggleComments, setToggleComments] = useState(false)
     const [commentData, setCommentData] = useState({ message: "" })
-    // const [page, setPage] = useState({
-    //     from: 0,
-    //     to: 9
-    // })
+    const [page, setPage] = useState(1)
+    const [errorMsg, setErrorMsg] = useState("")
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
@@ -76,7 +74,7 @@ export const Home = () => {
             }
         };
 
-        if (!uploads || page !== 1) {
+        if (!uploads) {
             fetchUploads();
         }
     }, [uploads]);
@@ -84,19 +82,21 @@ export const Home = () => {
     useEffect(() => {
         const fetchAvatars = async () => {
             const avatars = [];
-            for (const upload of uploads) {
-                try {
-                    const avatar = await getAvatarService(upload?.user?.avatar)
-                    if (avatar.message === 'Network response was not ok:') {
-                        console.log('Error loading avatar');
-                    }
-                    avatars.push(avatar)
-                } catch (error) {
-                    if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
-                        dispatch(logout({ credentials: {} }))
-                        navigate('/')
-                    } else {
-                        console.log(error);
+            if (uploads && uploads?.length > userAvatar?.length || uploads && !userAvatar) {
+                for (const upload of uploads) {
+                    try {
+                        const avatar = await getAvatarService(upload?.user?.avatar)
+                        if (avatar.message === 'Network response was not ok:') {
+                            console.log('Error loading avatar');
+                        }
+                        avatars.push(avatar)
+                    } catch (error) {
+                        if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                            dispatch(logout({ credentials: {} }))
+                            navigate('/')
+                        } else {
+                            console.log(error);
+                        }
                     }
                 }
             }
@@ -107,11 +107,11 @@ export const Home = () => {
             fetchAvatars();
         }
 
-    }, [uploads, userAvatar])
+    }, [uploads, userAvatar, page])
 
     useEffect(() => {
         const convertUploads = async () => {
-            if (uploads && !uploadsConverted) {
+            if (uploads && uploads?.length > uploadsConverted?.length || uploads && !uploadsConverted) {
                 const uploadUrls = []
                 for (const upload of uploads) {
                     try {
@@ -134,7 +134,35 @@ export const Home = () => {
             }
         }
         convertUploads();
-    }, [uploads, uploadsConverted])
+    }, [uploads, uploadsConverted, page])
+
+    useEffect(() => {
+        const fetchUploads = async () => {
+            try {
+                const fetched = await getAllUploadsService(page);
+                if (!fetched.success) {
+                    setErrorMsg(fetched?.message)
+                    setTimeout(() => {
+                        setErrorMsg("")
+                    }, 2000);
+                    throw new Error(fetched?.message);
+                }
+                setUploads(null)
+                setUserAvatar(null)
+                setUploadsConverted(null)
+                setUploads(fetched.data);
+            } catch (error) {
+                if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
+                    dispatch(logout({ credentials: {} }))
+                    navigate('/')
+                } else {
+                    console.log(error);
+                }
+            }
+            console.log(errorMsg);
+        };
+        fetchUploads()
+    }, [page]);
 
     /////////////////////////////////////////////////////////////////////// LOGIC
 
@@ -220,43 +248,49 @@ export const Home = () => {
         }
     }
 
-    // const upPage = () => {
-    //     setPage(prevState => ({
-    //         ...prevState,
-    //         from: prevState.from + 3,
-    //         to: prevState.to + 3
-    //     }));
-    // }
-    // const downPage = () => {
-    //     if (page.from > 0) { 
-    //         setPage(prevState => ({
-    //             ...prevState,
-    //             from: prevState.from - 3,
-    //             to: prevState.to - 3
-    //         }));
-    //     }
-    // }
+    const upPage = () => {
+        errorMsg
+            ? null
+            : setPage(prevState => prevState + 1)
+    }
+
+    const downPage = () => {
+        page > 1
+            ? setPage(prevState => prevState - 1)
+            : null
+
+    }
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="home-design">
-            {/* <CButton onClick={() => upPage()} title={'page Up'} />
-            <CButton onClick={() => downPage()} title={'page Down'} /> */}
+            <div className="home-title">
+                <img src="../../../img/Checkpoint-title.png" alt="" />
+            </div>
+            <CText className={'errorPage'} title={errorMsg} />
+            <div className="page">
+                <ArrowLeftCircle className="icons-info" onClick={() => downPage()} title={'page Down'} />
+                <div className="page-info">
+                    <CText title={page} />
+                </div>
+                <ArrowRightCircle className="icons-info" onClick={() => upPage()} title={'page Up'} />
+            </div>
             <CCard className={'homeUploads-Card'}>
-                {uploadsConverted !== null && uploadsConverted.slice(page.from, page.to).map((file, index) => (
+                {uploadsConverted !== null && uploadsConverted.map((file, index) => (
                     selectedCard !== index
                         // ALL UPLOADS
                         ? (
-                            <CCard key={`${index}${uploads[index].name}`} className={'homeViewport-Card'}>
+                            <CCard key={`${index}${uploads[index]?.name}`} className={'homeViewport-Card'}>
                                 <div className="author">
                                     {
-                                        uploads[index].user.avatar !== `${uploads[index].user.name}-undefined`
+                                        uploads[index]?.user.avatar !== `${uploads[index]?.user.name}-undefined`
                                             ? (
                                                 <div className="author-avatar">
+                                                    <CText title={uploads[index]?.user.name} />
                                                     <img
                                                         src={userAvatar[index]}
-                                                        alt={`${uploads[index]?.user?.name}'s avatar`}
-                                                        onClick={() => goToUserProfile(index)}
+                                                        alt={`${uploads[index]?.user.name}'s avatar`}
+                                                        onClick={userToken ? () => goToUserProfile(index) : null}
                                                         onError={(e) => {
                                                             e.target.onerror = null;
                                                             e.target.style.display = 'none';
@@ -269,25 +303,25 @@ export const Home = () => {
                                                 <div className="noAvatar">{uploads[index]?.user?.name.split("")[0].toUpperCase()}</div>
                                             )
                                     }
-                                    <CText title={uploads[index].name.split(".")[0]} />
+                                    <CText title={uploads[index]?.name.split(".")[0]} />
                                 </div>
                                 <Viewport onClick={() => toggleDetail(index)} asset={file || asset} />
                                 <div className="info">
                                     <div className="icons-info">
                                         <Heart onClick={() => likeDislikeInput(index)} />
-                                        <CText className={'text-iconsInfo'} title={uploads[index].liked.length} />
+                                        <CText className={'text-iconsInfo'} title={uploads[index]?.liked.length} />
                                     </div>
                                     <div className="icons-info">
                                         <MessageSquare onClick={() => showComments(index)} />
-                                        <CText className={'text-iconsInfo'} title={uploads[index].uploadComments.length} />
+                                        <CText className={'text-iconsInfo'} title={uploads[index]?.uploadComments.length} />
                                     </div>
                                     <div className="icons-info">
                                         <SquareLibrary />
-                                        <CText className={'text-iconsInfo'} title={uploads[index].posts.length} />
+                                        <CText className={'text-iconsInfo'} title={uploads[index]?.posts.length} />
                                     </div>
                                     <div className="icons-info">
                                         {
-                                            uploads[index].downloadable
+                                            uploads[index]?.downloadable
                                                 ? <a href={file} download><Download /></a>
                                                 : <Download />
                                         }
@@ -323,7 +357,7 @@ export const Home = () => {
                                         <CText title={uploads[index].name.split(".")[0]} />
                                     </div>
                                     {
-                                        <Viewport asset={file || asset} />
+                                        <Viewport viewportSize={{ width: 1000, height: 500 }} asset={file || asset} />
                                     }
                                     <div className="info">
                                         <div className="icons-info">
@@ -344,34 +378,30 @@ export const Home = () => {
                                     </div>
                                 </CCard>
                                 {
-                                    // UPLOAD COMMENTS
-                                    toggleComments
-                                        ? (
-                                            <div className="UploadComments-card">
-                                                <div className="newComment">
-                                                    <CInput
-                                                        type={'textarea'}
-                                                        name={'message'}
-                                                        value={commentData.message || ""}
-                                                        placeholder={'input new comment'}
-                                                        onChange={(e) => inputHandler(e)}
-                                                    />
-                                                    <CButton onClick={() => createCommentInput(index)} title={'New Comment'} />
-                                                </div>
-                                                {
-                                                    uploads[index].uploadComments.map((comment, index) => {
-                                                        return (
-                                                            <CCard key={`${index}-${uploads[index].user.email} comment`} className={'comment-card'}>
-                                                                <CText className={index % 2 !== 0 ? 'text-comments-author-inverse' : 'text-comments-author'} title={`${comment.message.split(":")[0]}`} />
-                                                                <CText className={index % 2 !== 0 ? 'text-comments-message-inverse' : 'text-comments-message'} title={comment.message.split(":")[1]} />
-                                                            </CCard>
-                                                        )
-                                                    })
-                                                }
 
-                                            </div>
-                                        )
-                                        : null
+                                    // UPLOAD COMMENTS
+                                    <div className={userToken ? 'uploadComments-card' : 'hidden'}>
+                                        <div className='newComment'>
+                                            <CInput
+                                                type={'textarea'}
+                                                name={'message'}
+                                                value={commentData.message || ""}
+                                                placeholder={'input new comment'}
+                                                onChange={(e) => inputHandler(e)}
+                                            />
+                                            <CButton onClick={() => createCommentInput(index)} title={'New Comment'} />
+                                        </div>
+                                        {
+                                            uploads[index].uploadComments.map((comment, index) => {
+                                                return (
+                                                    <CCard key={`${index}-${uploads[index].user.email} comment`} className={'comment-card'}>
+                                                        <CText className={index % 2 !== 0 ? 'text-comments-author-inverse' : 'text-comments-author'} title={`${comment.message.split(":")[0]}`} />
+                                                        <CText className={index % 2 !== 0 ? 'text-comments-message-inverse' : 'text-comments-message'} title={comment.message.split(":")[1]} />
+                                                    </CCard>
+                                                )
+                                            })
+                                        }
+                                    </div>
                                 }
                             </div>
                         )

@@ -1,4 +1,4 @@
-.footer-design{
+.footer-design {
     height: 10vh;
     width: 100vw;
 
@@ -6,6 +6,15 @@
     border-top: .1em solid black;
 
     display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.footer-design img {
+    height: 3em;
+    width: auto;
+    display: flex;
     justify-content: center;
     align-items: center;
+    filter: grayscale(100%);
 }

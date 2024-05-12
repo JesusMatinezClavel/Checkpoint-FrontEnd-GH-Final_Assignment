@@ -5,13 +5,18 @@
 
     background-color: #cccccc;
 
+    
+    color: #292c37;
+
     border-radius: .5em;
     border: .1em solid grey;
 
-    &:hover {
-        background-color: #cccccc;
+    cursor: pointer;
 
-        color: #292c37;
+    &:hover {
+        background-color: #292c37;
+
+        color: #cccccc;
     }
 
     &:active {
@@ -57,9 +62,6 @@
 .button-delete {
     height: auto;
     width: 8em;
-    background-color: #292c37;
-
-    color: #cccccc;
 
     display: flex;
     justify-content: center;
@@ -109,4 +111,9 @@
     &:active {
         transform: translateY(.2em)
     }
+}
+
+.home-button,
+.superadmin-button{
+    margin-left: 1em;
 }

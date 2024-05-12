@@ -80,23 +80,6 @@ export const Profile = () => {
             : document.title = `${rdxUser?.credentials?.userTokenData?.userName}'s profile`
     }, [])
 
-    console.log(userInfo?.uploads);
-
-    // Link errors with errorsMsg
-    useEffect(() => {
-        let allErrorsCleared
-
-        for (let element in updateDataError) {
-            if (updateDataError[element] !== "") {
-                setErrorMsg(updateDataError[element])
-                break
-            }
-        }
-        allErrorsCleared = Object.values(updateDataError).every(value => value === "")
-
-        allErrorsCleared ? setErrorMsg("") : null
-    }, [updateDataError])
-
     // Get Profile
     useEffect(() => {
         const getProfile = async () => {
@@ -171,7 +154,23 @@ export const Profile = () => {
         };
 
         fetchUploads();
-    }, [userInfo, userUploads]);
+    }, [userInfo]);
+
+    // Link errors with errorsMsg
+    useEffect(() => {
+        let allErrorsCleared
+
+        for (let element in updateDataError) {
+            if (updateDataError[element] !== "") {
+                setErrorMsg(updateDataError[element])
+                break
+            }
+        }
+        allErrorsCleared = Object.values(updateDataError).every(value => value === "")
+
+        allErrorsCleared ? setErrorMsg("") : null
+    }, [updateDataError])
+
 
     /////////////////////////////////////////////////////////////////////// LOGIC 
 
@@ -204,6 +203,8 @@ export const Profile = () => {
         }
     }
 
+    console.log(updateData);
+
     // Check Error
     const checkError = (e) => {
 
@@ -223,7 +224,24 @@ export const Profile = () => {
         if (showUpdate) {
             const updateInput = async () => {
                 try {
-                    if (updateAvatar) {
+                    const fetched = await updateOwnProfileService(userToken, updateData)
+                    if (!fetched?.success) {
+                        setErrorMsg(fetched?.message)
+                        setTimeout(() => {
+                            setErrorMsg("")
+                        }, 2000);
+                        throw new Error(fetched?.error)
+                    } else {
+                        setUserInfo((prevState) => ({
+                            ...prevState,
+                            name: fetched?.data?.name,
+                            bio: fetched?.data?.bio,
+                            avatar: fetched?.data?.avatar,
+                            email: fetched?.data?.email
+                        }))
+                        setShowUpdate(false)
+                    }
+                    if (updateAvatar && userInfo.name) {
                         try {
                             const uploaded = await uploadAvatarService(updateAvatar)
                             if (!uploaded?.success) {
@@ -241,23 +259,6 @@ export const Profile = () => {
                                 console.log(error);
                             }
                         }
-                    }
-                    const fetched = await updateOwnProfileService(userToken, updateData)
-                    if (!fetched?.success) {
-                        setErrorMsg(fetched?.message)
-                        setTimeout(() => {
-                            setErrorMsg("")
-                        }, 2000);
-                        throw new Error(fetched?.message)
-                    } else {
-                        setUserInfo((prevState) => ({
-                            ...prevState,
-                            name: fetched?.data?.name,
-                            bio: fetched?.data?.bio,
-                            avatar: fetched?.data?.avatar,
-                            email: fetched?.data?.email
-                        }))
-                        setShowUpdate(false)
                     }
                 } catch (error) {
                     if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
@@ -284,6 +285,7 @@ export const Profile = () => {
         }
     }
 
+    console.log(userInfo);
     /////////////////////////////////////////////////////////////////////// DELETE PROFILE
 
     // Delete Profile
@@ -324,10 +326,7 @@ export const Profile = () => {
             if (!fetched?.success) {
                 throw new Error(fetched?.message)
             }
-            setUserInfo(prevState => ({
-                ...prevState,
-                uploads: prevState.uploads.filter((upload, i) => i !== index)
-            }));
+            setUserUploads(prevState => prevState.filter((upload, i) => i !== index));
         } catch (error) {
             if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }))
@@ -372,11 +371,25 @@ export const Profile = () => {
                             : (
                                 <CCard className={'userUploads-card'}>
                                     {
-                                        userUploads.map((upload, index) => {
+                                        userUploads.reverse().map((upload, index) => {
                                             return (
                                                 <CCard key={`${index}-${userInfo?.name}`}>
                                                     <CText title={userInfo?.uploads[index]?.name?.split(".")[0]} />
-                                                    <Viewport asset={upload} />
+                                                    <Viewport viewportSize={{ width: 800, height: 400 }} asset={upload} />
+                                                    {
+                                                        userToken && !userSelected
+                                                            ? (
+                                                                <div className="deleteModel">
+                                                                    <X onClick={() => toggleDeleteUpload()} className={showDeleteUpload ? 'hidden' : ""} />
+                                                                    <CText className={showDeleteUpload ? "" : 'hidden'} title={'delete model?'} />
+                                                                    <div className={showDeleteUpload ? 'confirm' : 'hidden'}>
+                                                                        <Check onClick={() => deleteUploadInput(index)} />
+                                                                        <X onClick={() => toggleDeleteUpload()} />
+                                                                    </div>
+                                                                </div>
+                                                            )
+                                                            : null
+                                                    }
                                                 </CCard>
                                             )
                                         })

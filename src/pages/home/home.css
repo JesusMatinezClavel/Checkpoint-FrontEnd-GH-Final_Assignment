@@ -11,3 +11,15 @@
     flex-direction: row;
     flex-wrap: wrap;
 }
+
+.page {
+    height: auto;
+    width: auto;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+
+    background-color: rgb(110, 63, 0);
+}

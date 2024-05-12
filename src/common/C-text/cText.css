@@ -131,3 +131,10 @@
 .text-area {
     height: 30em;
 }
+
+.errorPage{
+    /* height: 100%;
+    width: 100%; */
+
+    background-color: #cccccc;
+}

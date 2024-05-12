@@ -326,13 +326,15 @@ export const Header = () => {
     // Register Call
     const registerInput = async () => {
         try {
-            const Uploaded = await uploadAvatarService(registerAvatar)
-            if (!Uploaded.success) {
-                setErrorMsg(Uploaded.message)
-                setTimeout(() => {
-                    setErrorMsg("")
-                }, 2000);
-                throw new Error(Uploaded.message)
+            if (registerAvatar) {
+                const Uploaded = await uploadAvatarService(registerAvatar)
+                if (!Uploaded.success) {
+                    setErrorMsg(Uploaded.message)
+                    setTimeout(() => {
+                        setErrorMsg("")
+                    }, 2000);
+                    throw new Error(Uploaded.message)
+                }
             }
             const fetched = await registerService(registerData)
             if (!fetched.success) {
@@ -403,6 +405,9 @@ export const Header = () => {
         }))
         navigate('/profile')
     }
+    const goToSuperadmin = ()=>{
+        navigate('/superadmin')
+    }
 
     /////////////////////////////////////////////////////////////////////// UPLOAD
 
@@ -459,11 +464,17 @@ export const Header = () => {
             )
     }
 
+    console.log(rdxUser.credentials.userTokenData);
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (
         <div className="header-design">
-            <CButton title={'home'} onClick={() => navigate('/')} />
+            <CButton className={'home-button'} title={'home'} onClick={() => navigate('/')} />
+            {
+                rdxUser?.credentials?.userTokenData?.roleName === 'superadmin'
+                    ? <CButton className={'superadmin-button'} title={'superadmin'} onClick={()=>goToSuperadmin()}/>
+                    : null
+            }
             <div className="separator-header"></div>
             {
                 rdxUser.credentials.userToken

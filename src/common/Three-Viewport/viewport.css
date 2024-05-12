@@ -7,7 +7,7 @@
     border-radius: 1em;
 
     background-color: white;
-        
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -15,12 +15,15 @@
     flex-wrap: wrap;
 
     margin: 1em;
-} 
+}
 
 .viewport {
     height: 20em;
     width: 20em;
-    border-radius:1em;
-    box-shadow: inset .2em .2em 2em .1em rgb(158, 151, 151);
+    border-radius: 1em;
+    border: .1em solid #292c37;
+    box-shadow: .2em .2em 2em .1em #cccccc;
     margin: 1em;
-} 
+
+    cursor: pointer;
+}
