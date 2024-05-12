@@ -19,16 +19,16 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
         const canvas = canvasRef.current
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         const controls = new OrbitControls(cameraRef.current, renderer.domElement);
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1000)
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1000);
+        const ambientLight = new THREE.AmbientLight(0xffffff, 6)
+        // const directionalLight = new THREE.DirectionalLight(0xffffff, 50);
 
 
         sceneRef.current.add(new THREE.AxesHelper(0.4));
         sceneRef.current.add(lightRef.current);
         sceneRef.current.add(ambientLight);
-        directionalLight.position.set(0, 1, 0);
-        sceneRef.current.add(directionalLight);
-
+        // sceneRef.current.add(directionalLight);
+        
+        // directionalLight.position.set(0, 50, 0);
         cameraRef.current.position.set(20, 20, 50);
         lightRef.current.position.set(0, 0, 75);
         controls.update();
@@ -96,7 +96,7 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
             bbox.getSize(objectSize);
 
             const maxObjectSize = Math.max(objectSize.x, objectSize.y, objectSize.z)
-            const cameraDistance = maxObjectSize*0.3
+            const cameraDistance = maxObjectSize* .4
 
             cameraRef.current.position.set(20, 20, cameraDistance)
             lightRef.current.position.set(20, 50, cameraDistance)
