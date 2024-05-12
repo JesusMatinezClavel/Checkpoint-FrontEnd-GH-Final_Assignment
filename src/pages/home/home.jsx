@@ -159,7 +159,6 @@ export const Home = () => {
                     console.log(error);
                 }
             }
-            console.log(errorMsg);
         };
         fetchUploads()
     }, [page]);

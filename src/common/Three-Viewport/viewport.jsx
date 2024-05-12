@@ -12,6 +12,7 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
     const sceneRef = useRef(new THREE.Scene())
     const cameraRef = useRef(new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000))
     const lightRef = useRef(new THREE.PointLight(0xffffff, 1000))
+    const firsModelRef = useRef(null)
 
 
     useEffect(() => {
@@ -57,7 +58,10 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
     }, []);
 
     useEffect(() => {
-        if (!asset) return;
+        if (!asset) {
+            console.log("No asset provided, skipping load.");
+            return;
+        }
 
         const manager = new LoadingManager()
 
@@ -72,7 +76,16 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
 
         const loader = new FBXLoader(manager);
         loader.load(asset, (object) => {
-            sceneRef.current.add(object)
+            console.log("Model loaded, checking if a model is already present...");
+
+            if (firsModelRef.current) {
+                console.log("Model already loaded, ignoring new model");
+                return;
+            }
+
+            console.log("No existing model found, adding new model to the scene.");
+            sceneRef.current.add(object);
+            firsModelRef.current = object
 
             const bbox = new THREE.Box3().setFromObject(object);
             const objectSize = new THREE.Vector3();
@@ -88,6 +101,7 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
             cameraRef.current.lookAt(objectCenter);
 
             rendererRef.current.render(sceneRef.current, cameraRef.current);
+
         }, undefined, (error) => {
             console.error('Error loading the asset', error);
         });

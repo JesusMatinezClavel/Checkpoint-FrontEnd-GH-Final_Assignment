@@ -89,7 +89,6 @@ export const Profile = () => {
                     userFetched = await getOwnProfileService(userToken)
                 } else {
                     userFetched = await getProfileByIdService(userToken, userSelected)
-                    console.log(userFetched);
                 }
                 if (!userFetched?.success) {
                     throw new Error(userFetched?.message)
@@ -154,7 +153,7 @@ export const Profile = () => {
         };
 
         fetchUploads();
-    }, [userInfo]);
+    }, [userInfo, userUploads]);
 
     // Link errors with errorsMsg
     useEffect(() => {
@@ -202,8 +201,6 @@ export const Profile = () => {
             }
         }
     }
-
-    console.log(updateData);
 
     // Check Error
     const checkError = (e) => {
@@ -285,7 +282,6 @@ export const Profile = () => {
         }
     }
 
-    console.log(userInfo);
     /////////////////////////////////////////////////////////////////////// DELETE PROFILE
 
     // Delete Profile

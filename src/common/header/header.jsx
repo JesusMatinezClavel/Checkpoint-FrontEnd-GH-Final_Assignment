@@ -306,7 +306,6 @@ export const Header = () => {
     const logoutInput = async () => {
         try {
             const fetched = await logoutService(userToken)
-            // console.log(fetched);
             if (!fetched.success) {
                 throw new Error(fetched.message)
             }
@@ -464,7 +463,6 @@ export const Header = () => {
             )
     }
 
-    console.log(rdxUser.credentials.userTokenData);
     /////////////////////////////////////////////////////////////////////// RETURN
 
     return (

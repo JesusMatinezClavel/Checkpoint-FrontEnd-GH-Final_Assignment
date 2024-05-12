@@ -26,8 +26,6 @@ export const Superadmin = () => {
         document.title = `Superadmin utilities`
     }, [])
 
-    console.log(allUsers);
-
     useEffect(() => {
         if (!allUsers) {
             const getAllUsers = async () => {
