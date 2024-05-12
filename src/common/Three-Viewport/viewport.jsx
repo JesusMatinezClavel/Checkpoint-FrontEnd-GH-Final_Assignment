@@ -19,11 +19,15 @@ export const Viewport = ({ onClick, asset, viewportSize }) => {
         const canvas = canvasRef.current
         const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
         const controls = new OrbitControls(cameraRef.current, renderer.domElement);
-        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1000)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 5000);
+
 
         sceneRef.current.add(new THREE.AxesHelper(0.4));
         sceneRef.current.add(lightRef.current);
         sceneRef.current.add(ambientLight);
+        directionalLight.position.set(0, 1, 0);
+        sceneRef.current.add(directionalLight);
 
         cameraRef.current.position.set(20, 20, 50);
         lightRef.current.position.set(0, 0, 75);
