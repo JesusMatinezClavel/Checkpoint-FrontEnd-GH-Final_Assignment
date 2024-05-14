@@ -14,7 +14,7 @@ import { userData, logout } from "../../app/slices/userSlice";
 import { detailData, addUser, removeUser } from "../../app/slices/detailSlice";
 
 // Api Calls
-import { deleteOwnProfileService, deleteOwnUploadService, followUnfollowService, getAvatarService, getOwnProfileService, getProfileByIdService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
+import { deleteOwnProfileService, deleteOwnUploadService, followUnfollowService, getAvatarService, getOwnProfileService, getOwnUploadsService, getProfileByIdService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
 
 // Custom Methods
 import { validate } from "../../utils/validator";
@@ -45,6 +45,7 @@ export const Profile = () => {
     /////////////////////////////////////////////////////////////////////// HOOKS
     const [userInfo, setUserInfo] = useState(null)
     const [userUploads, setUserUploads] = useState(null)
+    const [uploadFiles, setUploadFiles] = useState(null)
     const [userAvatar, setUserAvatar] = useState(null)
     const [loading, setLoading] = useState({
         infoLoading: true,
@@ -113,8 +114,6 @@ export const Profile = () => {
         }
     }, [userInfo])
 
-console.log(userInfo);
-
     // Get Avatar
     useEffect(() => {
         const getAvatar = async () => {
@@ -132,30 +131,50 @@ console.log(userInfo);
 
     // Get User's Uploads
     useEffect(() => {
-        const fetchUploads = async () => {
-            if (userInfo && userInfo?.uploads?.length !== userUploads?.length && userUploads) {
-                const urls = [];
-                for (const upload of userInfo?.uploads) {
-                    try {
-                        const fetchedFile = await getUploadFileService(upload.id);
-                        const uploadUrl = URL.createObjectURL(fetchedFile);
-                        urls.push(uploadUrl);
-                    } catch (error) {
-                        console.error(error);
-                        urls.push(null);
+        if (userInfo && !userUploads) {
+            const getUserUploads = async () => {
+                try {
+                    const uploadsFetched = await getOwnUploadsService(userToken)
+                    if (!uploadsFetched) {
+                        throw new Error(uploadsFetched.message)
+                    }
+                    setUserUploads(uploadsFetched.data)
+                } catch (error) {
+                    if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
+                        dispatch(logout({ credentials: {} }));
+                    } else {
+                        console.log(error);
                     }
                 }
-                const validUrls = urls.filter(url => url !== null);
-                setUserUploads(validUrls);
-                setLoading(prevState => ({
-                    ...prevState,
-                    uploadLoading: false
-                }));
             }
-        };
+            getUserUploads()
+        }
+    }, [userInfo, userUploads])
 
-        fetchUploads();
-    }, [userInfo]);
+    // Get Files from uploads
+    useEffect(() => {
+        if (userInfo?.uploads.lenght === userUploads?.lenght && !uploadFiles) {
+            const getUploadFiles = async () => {
+                const uploadsUrl = []
+                try {
+                    userUploads.map(async (upload) => {
+                        const fileFetched = await getUploadFileService(upload.id)
+                        const fileUrl = URL.createObjectURL(fileFetched)
+                        uploadsUrl.push(fileUrl)
+                    })
+                    setUploadFiles(uploadsUrl)
+                    setLoading((prevState) => ({
+                        ...prevState,
+                        uploadLoading: false
+                    }))
+                } catch (error) {
+
+                }
+            }
+            getUploadFiles()
+        }
+
+    }, [userUploads, uploadFiles])
 
     // Link errors with errorsMsg
     useEffect(() => {
@@ -356,6 +375,8 @@ console.log(userInfo);
 
     /////////////////////////////////////////////////////////////////////// RETURN
 
+    console.log(uploadFiles);
+
     return (
         <div className="profile-design">
             {/* UPLOADS */}
@@ -369,7 +390,7 @@ console.log(userInfo);
                             : (
                                 <CCard className={'userUploads-card'}>
                                     {
-                                        userUploads.reverse().map((upload, index) => {
+                                        uploadFiles.map((upload, index) => {
                                             return (
                                                 <CCard key={`${index}-${userInfo?.name}`}>
                                                     <CText title={userInfo?.uploads[index]?.name?.split(".")[0]} />

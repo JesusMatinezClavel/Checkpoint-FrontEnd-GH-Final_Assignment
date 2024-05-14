@@ -89,7 +89,28 @@ export const uploadAvatarService = async (file) => {
 
 
 /// UPLOAD
+export const getOwnUploadsService = async (token) => {
+    try {
+        const options = {
+            method: 'GET',
+            headers: {
+                'authorization': `Bearer ${token}`
+            }
+        }
 
+        const response = await fetch(`${root}/upload/user`, options)
+
+        const data = await response.json()
+
+        if (!data.success) {
+            throw new Error(data.message)
+        }
+
+        return data
+    } catch (error) {
+        return error
+    }
+}
 export const createNewUpload = async (token, uploadData) => {
     try {
         const options = {
