@@ -113,6 +113,8 @@ export const Profile = () => {
         }
     }, [userInfo])
 
+console.log(userInfo);
+
     // Get Avatar
     useEffect(() => {
         const getAvatar = async () => {
@@ -131,7 +133,7 @@ export const Profile = () => {
     // Get User's Uploads
     useEffect(() => {
         const fetchUploads = async () => {
-            if (userInfo && userInfo?.uploads?.length !== userUploads?.length) {
+            if (userInfo && userInfo?.uploads?.length !== userUploads?.length && userUploads) {
                 const urls = [];
                 for (const upload of userInfo?.uploads) {
                     try {
@@ -153,7 +155,7 @@ export const Profile = () => {
         };
 
         fetchUploads();
-    }, [userInfo, userUploads]);
+    }, [userInfo]);
 
     // Link errors with errorsMsg
     useEffect(() => {
@@ -238,7 +240,7 @@ export const Profile = () => {
                         }))
                         setShowUpdate(false)
                     }
-                    if (updateAvatar && userInfo.name) {
+                    if (updateAvatar && userInfo) {
                         try {
                             const uploaded = await uploadAvatarService(updateAvatar)
                             if (!uploaded?.success) {

@@ -89,6 +89,8 @@ export const Header = () => {
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
 
+    console.log(registerData.avatar);
+
     /////////////////////////////////////////////////////////////////////// LOGIC
     // Input Handler
     const inputHandler = (e) => {
@@ -324,6 +326,14 @@ export const Header = () => {
     /////////////////////////////////////////////////////////////////////// REGISTER
     // Register Call
     const registerInput = async () => {
+        
+        !registerData.avatar
+        ? setRegisterData((prevState) => ({
+            ...prevState,
+            avatar: `${registerData.name}-default-ProfileImg.png`
+        }))
+        : null
+
         try {
             if (registerAvatar) {
                 const Uploaded = await uploadAvatarService(registerAvatar)
@@ -361,13 +371,18 @@ export const Header = () => {
             : (setShowRegister(true),
                 setRegisterData({
                     email: "",
-                    password: ""
+                    password: "",
+                    avatar: "",
+                    name: ""
                 }),
                 setRegisterDataError({
                     emailError: "",
-                    passwordError: ""
+                    passwordError: "",
+                    avatarError: "",
+                    nameError: ""
                 })),
-            setAvatarPreview('../../../img/default-ProfileImg.png')
+            setAvatarPreview('../../../img/default-ProfileImg.png'),
+            setRegisterAvatar(null)
     }
 
     // Hide Cards when clicking outside
@@ -404,7 +419,7 @@ export const Header = () => {
         }))
         navigate('/profile')
     }
-    const goToSuperadmin = ()=>{
+    const goToSuperadmin = () => {
         navigate('/superadmin')
     }
 
@@ -470,7 +485,7 @@ export const Header = () => {
             <CButton className={'home-button'} title={'home'} onClick={() => navigate('/')} />
             {
                 rdxUser?.credentials?.userTokenData?.roleName === 'superadmin'
-                    ? <CButton className={'superadmin-button'} title={'superadmin'} onClick={()=>goToSuperadmin()}/>
+                    ? <CButton className={'superadmin-button'} title={'superadmin'} onClick={() => goToSuperadmin()} />
                     : null
             }
             <div className="separator-header"></div>
