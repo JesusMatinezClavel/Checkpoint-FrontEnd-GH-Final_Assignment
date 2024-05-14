@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 // Redux
 import { useDispatch, useSelector } from "react-redux";
 import { userData, login, logout } from "../../app/slices/userSlice";
+import { detailData, addUpload, removeUpload } from "../../app/slices/detailSlice";
 
 // Api Calls
 import { createNewUpload, loginService, logoutService, registerService, uploadAvatarService, uploadModelService } from '../../services/apiCalls';
@@ -33,7 +34,9 @@ export const Header = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const rdxUser = useSelector(userData)
-    const userToken = rdxUser.credentials.userToken
+    const rdxDetail = useSelector(detailData)
+    const fileUploaded = rdxDetail?.uploadFile
+    const userToken = rdxUser?.credentials.userToken
     const reader = new FileReader()
     let file
     let newFileName
@@ -88,7 +91,6 @@ export const Header = () => {
     })
 
     /////////////////////////////////////////////////////////////////////// USE EFFECTS
-
 
     /////////////////////////////////////////////////////////////////////// LOGIC
     // Input Handler
@@ -325,13 +327,13 @@ export const Header = () => {
     /////////////////////////////////////////////////////////////////////// REGISTER
     // Register Call
     const registerInput = async () => {
-        
+
         !registerData.avatar
-        ? setRegisterData((prevState) => ({
-            ...prevState,
-            avatar: `${registerData.name}-default-ProfileImg.png`
-        }))
-        : null
+            ? setRegisterData((prevState) => ({
+                ...prevState,
+                avatar: `${registerData.name}-default-ProfileImg.png`
+            }))
+            : null
 
         try {
             if (registerAvatar) {
@@ -443,6 +445,7 @@ export const Header = () => {
                 throw new Error(fetched.message)
             }
             setShowUpload(false)
+            dispatch(addUpload({ uploadFile: fetched.data }))
         } catch (error) {
             if (error.message === "TOKEN NOT FOUND" || error.message === "TOKEN INVALID" || error.message === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }))
@@ -473,204 +476,205 @@ export const Header = () => {
                 setUploadFile(null),
                 setUploadFileUrl(null),
                 setResetViewport(true),
+                dispatch(removeUpload({ uploadFile: null })),
                 setShowUpload(true)
             )
     }
 
-    /////////////////////////////////////////////////////////////////////// RETURN
+/////////////////////////////////////////////////////////////////////// RETURN
 
-    return (
-        <div className="header-design">
-            <CButton className={'home-button'} title={'home'} onClick={() => navigate('/')} />
-            {
-                rdxUser?.credentials?.userTokenData?.roleName === 'superadmin'
-                    ? <CButton className={'superadmin-button'} title={'superadmin'} onClick={() => goToSuperadmin()} />
-                    : null
-            }
-            <div className="separator-header"></div>
-            {
-                rdxUser.credentials.userToken
-                    ? (
-                        <div className="buttons-logged">
-                            <CButton className={'button-profile'}
-                                title={`${rdxUser.credentials.userTokenData.userName}`}
-                                onClick={() => goToProfile()}
-                            />
-                            <CButton
-                                className={'button-upload'}
-                                title={'upload'}
-                                onClick={() => toggleUpload()}
-                            />
-                            <CButton
-                                className={'button-logout'}
-                                title={'logout'}
-                                onClick={() => logoutInput()}
-                            />
-                            {/* Upload Card */}
-                            <div onClick={(e) => hideCard(e)} className={showUpload ? 'welcome-overlay' : 'hidden'}>
-                                <CCard className={showUpload ? "card-upload" : 'hidden'}>
-                                    <div className="closeCard"><X onClick={() => toggleUpload()} className='icon-closeCard' /></div>
-                                    <div className="upload-inputs">
-                                        <div className="upload-info">
-                                            <CInput
-                                                disabled={errorMsg === "" ? false : errorMsg === uploadData.description ? false : true}
-                                                name={'description'}
-                                                type={'textarea'}
-                                                value={uploadData.description || ""}
-                                                placeholder={'input description'}
+return (
+    <div className="header-design">
+        <CButton className={'home-button'} title={'home'} onClick={() => navigate('/')} />
+        {
+            rdxUser?.credentials?.userTokenData?.roleName === 'superadmin'
+                ? <CButton className={'superadmin-button'} title={'superadmin'} onClick={() => goToSuperadmin()} />
+                : null
+        }
+        <div className="separator-header"></div>
+        {
+            rdxUser.credentials.userToken
+                ? (
+                    <div className="buttons-logged">
+                        <CButton className={'button-profile'}
+                            title={`${rdxUser.credentials.userTokenData.userName}`}
+                            onClick={() => goToProfile()}
+                        />
+                        <CButton
+                            className={'button-upload'}
+                            title={'upload'}
+                            onClick={() => toggleUpload()}
+                        />
+                        <CButton
+                            className={'button-logout'}
+                            title={'logout'}
+                            onClick={() => logoutInput()}
+                        />
+                        {/* Upload Card */}
+                        <div onClick={(e) => hideCard(e)} className={showUpload ? 'welcome-overlay' : 'hidden'}>
+                            <CCard className={showUpload ? "card-upload" : 'hidden'}>
+                                <div className="closeCard"><X onClick={() => toggleUpload()} className='icon-closeCard' /></div>
+                                <div className="upload-inputs">
+                                    <div className="upload-info">
+                                        <CInput
+                                            disabled={errorMsg === "" ? false : errorMsg === uploadData.description ? false : true}
+                                            name={'description'}
+                                            type={'textarea'}
+                                            value={uploadData.description || ""}
+                                            placeholder={'input description'}
+                                            onChange={(e) => inputHandler(e)}
+                                            onBlur={(e) => checkError(e)}
+                                        />
+                                        <CInput
+                                            disabled={errorMsg === "" ? false : errorMsg === uploadData.file ? false : true}
+                                            name={'file'}
+                                            type={'file'}
+                                            value={""}
+                                            onChange={(e) => inputHandler(e)}
+                                            onBlur={(e) => checkError(e)}
+                                        />
+                                        {
+                                            showUpload && <Viewport asset={uploadFileUrl} reset={resetViewport} />
+                                        }
+                                        <CInput
+                                            disabled={errorMsg === "" ? false : errorMsg === uploadData.downloadable ? false : true}
+                                            name={'downloadable'}
+                                            type={'checkbox'}
+                                            value={uploadData.downloadable}
+                                            onChange={(e) => inputHandler(e)}
+                                            onBlur={(e) => checkError(e)}
+                                        />
+                                        <div className="upload-button">
+                                            <CButton
+                                                onClick={() => uploadInput()}
+                                                className={errorMsg === "" ? 'button-upload' : 'upload-disabled'}
+                                                title={'upload'} />
+                                            <CText title={errorMsg} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </CCard>
+                        </div>
+                    </div>
+                )
+                : (
+                    <div className="buttons-not-logged">
+                        <CButton className={'button-loggin'} title={'login'} onClick={() => toggleLogin()} />
+                        <CButton className={'button-register'} title={'register'} onClick={() => toggleRegister()} />
+
+                        {/* Loggin Card */}
+                        <div onClick={(e) => hideCard(e)} className={showLogin ? 'welcome-overlay' : 'hidden'}>
+                            <CCard className={showLogin ? "card-login" : 'hidden'}>
+                                <div className="closeCard"><X onClick={() => toggleLogin()} className='icon-closeCard' /></div>
+                                <div className="login-inputs">
+                                    <CText className={'text-infoTitle-top'} title={'Loggin!'} />
+                                    <CText className={'text-subtitle'} title={'Welcome back!'} />
+                                    <div className="login-info">
+                                        <CText className={'text-infoTitle-inputs'} title={'Email'} />
+                                        <CInput
+                                            disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
+                                            name={'email'}
+                                            type={'text'}
+                                            value={loginData.email || ""}
+                                            placeholder={'input email'}
+                                            onChange={(e) => inputHandler(e)}
+                                            onBlur={(e) => checkError(e)}
+                                        />
+                                        <CText className={'text-infoTitle-inputs'} title={'Password'} />
+                                        <CInput
+                                            disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
+                                            name={'password'}
+                                            type={'password'}
+                                            value={loginData.password || ""}
+                                            placeholder={'input password'}
+                                            onChange={(e) => inputHandler(e)}
+                                            onBlur={(e) => checkError(e)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="separator"></div>
+                                <div className="login-button">
+                                    <CButton onClick={errorMsg === "" ? () => loginInput() : null} className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                                    <CText title={errorMsg} />
+                                </div>
+                            </CCard>
+                        </div>
+
+                        {/* Register Card */}
+                        <div onClick={(e) => hideCard(e)} className={showRegister ? "welcome-overlay" : 'hidden'}>
+                            <CCard className={showRegister ? "card-register" : 'hidden'}>
+                                <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
+                                <CText className={'text-infoTitle-top'} title={'Register!'} />
+                                <CText className={'text-subtitle'} title={'Welcome to Checkpoint!'} />
+                                <form
+                                    action="http://localhost:4000/api/file/avatar"
+                                    encType="multipart/form-data"
+                                    method="post"
+                                >
+                                    <div className="register-inputs">
+                                        <div className="register-info">
+                                            <label
+                                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
+                                                htmlFor='photo'
+                                                className={'uploadPhotoInput'}
                                                 onChange={(e) => inputHandler(e)}
-                                                onBlur={(e) => checkError(e)}
-                                            />
+                                                onBlur={(e) => checkError(e)}>
+                                                <img src={avatarPreview} alt="default-profileImg" />
+                                            </label>
                                             <CInput
-                                                disabled={errorMsg === "" ? false : errorMsg === uploadData.file ? false : true}
-                                                name={'file'}
-                                                type={'file'}
+                                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
+                                                className={'fileInputHidden'}
+                                                id={'photo'}
+                                                type={"file"}
+                                                name={"avatar"}
                                                 value={""}
                                                 onChange={(e) => inputHandler(e)}
                                                 onBlur={(e) => checkError(e)}
                                             />
-                                            {
-                                                showUpload && <Viewport asset={uploadFileUrl} reset={resetViewport} />
-                                            }
+                                            <CText className={'text-infoTitle-inputs'} title={'Name'} />
                                             <CInput
-                                                disabled={errorMsg === "" ? false : errorMsg === uploadData.downloadable ? false : true}
-                                                name={'downloadable'}
-                                                type={'checkbox'}
-                                                value={uploadData.downloadable}
+                                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
+                                                name={'name'}
+                                                type={'text'}
+                                                value={registerData.name || ""}
+                                                placeholder={'input name'}
                                                 onChange={(e) => inputHandler(e)}
                                                 onBlur={(e) => checkError(e)}
                                             />
-                                            <div className="upload-button">
-                                                <CButton
-                                                    onClick={() => uploadInput()}
-                                                    className={errorMsg === "" ? 'button-upload' : 'upload-disabled'}
-                                                    title={'upload'} />
-                                                <CText title={errorMsg} />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CCard>
-                            </div>
-                        </div>
-                    )
-                    : (
-                        <div className="buttons-not-logged">
-                            <CButton className={'button-loggin'} title={'login'} onClick={() => toggleLogin()} />
-                            <CButton className={'button-register'} title={'register'} onClick={() => toggleRegister()} />
-
-                            {/* Loggin Card */}
-                            <div onClick={(e) => hideCard(e)} className={showLogin ? 'welcome-overlay' : 'hidden'}>
-                                <CCard className={showLogin ? "card-login" : 'hidden'}>
-                                    <div className="closeCard"><X onClick={() => toggleLogin()} className='icon-closeCard' /></div>
-                                    <div className="login-inputs">
-                                        <CText className={'text-infoTitle-top'} title={'Loggin!'} />
-                                        <CText className={'text-subtitle'} title={'Welcome back!'} />
-                                        <div className="login-info">
                                             <CText className={'text-infoTitle-inputs'} title={'Email'} />
                                             <CInput
-                                                disabled={errorMsg === "" ? false : errorMsg === loginDataError.emailError ? false : true}
+                                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
                                                 name={'email'}
                                                 type={'text'}
-                                                value={loginData.email || ""}
+                                                value={registerData.email || ""}
                                                 placeholder={'input email'}
                                                 onChange={(e) => inputHandler(e)}
                                                 onBlur={(e) => checkError(e)}
                                             />
                                             <CText className={'text-infoTitle-inputs'} title={'Password'} />
                                             <CInput
-                                                disabled={errorMsg === "" ? false : errorMsg === loginDataError.passwordError ? false : true}
+                                                disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
                                                 name={'password'}
                                                 type={'password'}
-                                                value={loginData.password || ""}
+                                                value={registerData.password || ""}
                                                 placeholder={'input password'}
                                                 onChange={(e) => inputHandler(e)}
                                                 onBlur={(e) => checkError(e)}
                                             />
                                         </div>
+                                        <div className="separator"></div>
                                     </div>
-                                    <div className="separator"></div>
-                                    <div className="login-button">
-                                        <CButton onClick={errorMsg === "" ? () => loginInput() : null} className={errorMsg === "" ? 'button-loggin' : 'loggin-disabled'} title={'login'} />
+                                    <div className="register-button">
+                                        <CButton onClick={errorMsg === "" ? (e) => registerInput(e) : null} className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
                                         <CText title={errorMsg} />
                                     </div>
-                                </CCard>
-                            </div>
-
-                            {/* Register Card */}
-                            <div onClick={(e) => hideCard(e)} className={showRegister ? "welcome-overlay" : 'hidden'}>
-                                <CCard className={showRegister ? "card-register" : 'hidden'}>
-                                    <div className="closeCard"><X onClick={() => toggleRegister()} className='icon-closeCard' /></div>
-                                    <CText className={'text-infoTitle-top'} title={'Register!'} />
-                                    <CText className={'text-subtitle'} title={'Welcome to Checkpoint!'} />
-                                    <form
-                                        action="http://localhost:4000/api/file/avatar"
-                                        encType="multipart/form-data"
-                                        method="post"
-                                    >
-                                        <div className="register-inputs">
-                                            <div className="register-info">
-                                                <label
-                                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
-                                                    htmlFor='photo'
-                                                    className={'uploadPhotoInput'}
-                                                    onChange={(e) => inputHandler(e)}
-                                                    onBlur={(e) => checkError(e)}>
-                                                    <img src={avatarPreview} alt="default-profileImg" />
-                                                </label>
-                                                <CInput
-                                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.avatarError ? false : true}
-                                                    className={'fileInputHidden'}
-                                                    id={'photo'}
-                                                    type={"file"}
-                                                    name={"avatar"}
-                                                    value={""}
-                                                    onChange={(e) => inputHandler(e)}
-                                                    onBlur={(e) => checkError(e)}
-                                                />
-                                                <CText className={'text-infoTitle-inputs'} title={'Name'} />
-                                                <CInput
-                                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.nameError ? false : true}
-                                                    name={'name'}
-                                                    type={'text'}
-                                                    value={registerData.name || ""}
-                                                    placeholder={'input name'}
-                                                    onChange={(e) => inputHandler(e)}
-                                                    onBlur={(e) => checkError(e)}
-                                                />
-                                                <CText className={'text-infoTitle-inputs'} title={'Email'} />
-                                                <CInput
-                                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.emailError ? false : true}
-                                                    name={'email'}
-                                                    type={'text'}
-                                                    value={registerData.email || ""}
-                                                    placeholder={'input email'}
-                                                    onChange={(e) => inputHandler(e)}
-                                                    onBlur={(e) => checkError(e)}
-                                                />
-                                                <CText className={'text-infoTitle-inputs'} title={'Password'} />
-                                                <CInput
-                                                    disabled={errorMsg === "" ? false : errorMsg === registerDataError.passwordError ? false : true}
-                                                    name={'password'}
-                                                    type={'password'}
-                                                    value={registerData.password || ""}
-                                                    placeholder={'input password'}
-                                                    onChange={(e) => inputHandler(e)}
-                                                    onBlur={(e) => checkError(e)}
-                                                />
-                                            </div>
-                                            <div className="separator"></div>
-                                        </div>
-                                        <div className="register-button">
-                                            <CButton onClick={errorMsg === "" ? (e) => registerInput(e) : null} className={errorMsg === "" ? 'button-register' : 'register-disabled'} title={'register'} />
-                                            <CText title={errorMsg} />
-                                        </div>
-                                    </form>
-                                </CCard>
-                            </div>
+                                </form>
+                            </CCard>
                         </div>
-                    )
-            }
+                    </div>
+                )
+        }
 
-        </div>
-    )
+    </div>
+)
 }

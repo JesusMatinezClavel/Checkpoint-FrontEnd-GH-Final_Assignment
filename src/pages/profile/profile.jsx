@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 // Redux
 import { useSelector, useDispatch } from "react-redux";
 import { userData, logout } from "../../app/slices/userSlice";
-import { detailData, addUser, removeUser } from "../../app/slices/detailSlice";
+import { detailData, addUser, removeUser, addUpload, removeUpload } from "../../app/slices/detailSlice";
 
 // Api Calls
 import { deleteOwnProfileService, deleteOwnUploadService, followUnfollowService, getAvatarService, getOwnProfileService, getOwnUploadsService, getProfileByIdService, getUploadFileService, updateOwnProfileService, uploadAvatarService } from '../../services/apiCalls';
@@ -37,6 +37,7 @@ export const Profile = () => {
     const rdxDetail = useSelector(detailData)
     const userToken = rdxUser?.credentials?.userToken
     const userSelected = rdxDetail?.userId
+    const fileUploaded = rdxDetail?.uploadFile
     const reader = new FileReader()
     let file
     let newFile
@@ -47,6 +48,7 @@ export const Profile = () => {
     const [userUploads, setUserUploads] = useState(null)
     const [uploadFiles, setUploadFiles] = useState(null)
     const [userAvatar, setUserAvatar] = useState(null)
+    const [newUpload, setNewUpload] = useState(null)
     const [loading, setLoading] = useState({
         infoLoading: true,
         uploadLoading: true
@@ -81,6 +83,19 @@ export const Profile = () => {
             : document.title = `${rdxUser?.credentials?.userTokenData?.userName}'s profile`
     }, [])
 
+    useEffect(() => {
+        if (fileUploaded) {
+            setNewUpload(fileUploaded)
+            console.log('new upload NOOOOOO ES NULL', newUpload);
+        } else {
+            setNewUpload(null)
+            console.log('new upload SIIIIIII ES NULL', newUpload);
+        }
+    }, [fileUploaded])
+
+    // console.log(userInfo);
+
+
     // Get Profile
     useEffect(() => {
         const getProfile = async () => {
@@ -111,8 +126,11 @@ export const Profile = () => {
         }
         if (userInfo === null || userInfo?.uploads?.length !== userUploads?.length) {
             getProfile()
+        } else if(newUpload){
+            getProfile()
+            console.log('user profile called porque si   ', userInfo);
         }
-    }, [userInfo])
+    }, [userInfo, newUpload])
 
     // Get Avatar
     useEffect(() => {
@@ -131,7 +149,7 @@ export const Profile = () => {
 
     // Get User's Uploads
     useEffect(() => {
-        if (userInfo && !userUploads) {
+        if (userInfo && !userUploads || userInfo?.uploads.lenght !== userUploads?.lenght) {
             const getUserUploads = async () => {
                 try {
                     const uploadsFetched = await getOwnUploadsService(userToken)
@@ -374,8 +392,6 @@ export const Profile = () => {
     }
 
     /////////////////////////////////////////////////////////////////////// RETURN
-
-    console.log(uploadFiles);
 
     return (
         <div className="profile-design">

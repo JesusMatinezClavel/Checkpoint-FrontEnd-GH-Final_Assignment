@@ -4,7 +4,8 @@ export const detailSlice = createSlice({
     name: 'details',
     initialState: {
         userId: "",
-        userName: ""
+        userName: "",
+        uploadFile: {}
     },
     reducers: {
         addUser: (state, action) => {
@@ -18,11 +19,23 @@ export const detailSlice = createSlice({
                 ...state,
                 ...action.payload
             }
+        },
+        addUpload: (state, action) => {
+            return {
+                ...state,
+                ...action.payload
+            }
+        },
+        removeUpload: (state, action) => {
+            return {
+                ...state,
+                ...action.payload
+            }
         }
     }
 })
 
-export const { addUser, removeUser } = detailSlice.actions
+export const { addUser, removeUser, addUpload, removeUpload } = detailSlice.actions
 
 export const detailData = (state) => state.details
 
