@@ -93,9 +93,6 @@ export const Profile = () => {
         }
     }, [fileUploaded])
 
-    // console.log(userInfo);
-
-
     // Get Profile
     useEffect(() => {
         const getProfile = async () => {
@@ -126,11 +123,25 @@ export const Profile = () => {
         }
         if (userInfo === null || userInfo?.uploads?.length !== userUploads?.length) {
             getProfile()
-        } else if(newUpload){
-            getProfile()
-            console.log('user profile called porque si   ', userInfo);
         }
-    }, [userInfo, newUpload])
+    }, [userInfo,])
+
+    useEffect(() => {
+        if (fileUploaded) {
+            const loadModel = async () => {
+                try {
+                    const fileUrl = await getUploadFileService(fileUploaded.id);
+                    const newModelUrl = URL.createObjectURL(fileUrl);
+                    setUploadFiles(prevFiles => [...prevFiles, newModelUrl]);
+                    dispatch(removeUpload({ uploadFile: {} }))
+                } catch (error) {
+                    console.error('Error al cargar el modelo:', error);
+                }
+            };
+
+            loadModel();
+        }
+    }, [fileUploaded]);
 
     // Get Avatar
     useEffect(() => {
@@ -186,7 +197,7 @@ export const Profile = () => {
                         uploadLoading: false
                     }))
                 } catch (error) {
-
+                    console.log(error);
                 }
             }
             getUploadFiles()
@@ -361,7 +372,21 @@ export const Profile = () => {
             if (!fetched?.success) {
                 throw new Error(fetched?.message)
             }
-            setUserUploads(prevState => prevState.filter((upload, i) => i !== index));
+            setUserUploads(fetched?.data)
+            const getUploadFiles = async () => {
+                const uploadsUrl = []
+                try {
+                    fetched?.data.map(async (upload) => {
+                        const fileFetched = await getUploadFileService(upload.id)
+                        const fileUrl = URL.createObjectURL(fileFetched)
+                        uploadsUrl.push(fileUrl)
+                    })
+                    setUploadFiles(uploadsUrl)
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+            getUploadFiles()
         } catch (error) {
             if (error?.message === "TOKEN NOT FOUND" || error?.message === "TOKEN INVALID" || error?.message === "TOKEN ERROR") {
                 dispatch(logout({ credentials: {} }))
@@ -371,6 +396,10 @@ export const Profile = () => {
             }
         }
     }
+
+    useEffect(() => {
+        console.log("cambio en userUploads ->   ", userUploads);
+    }, [userUploads])
 
     // follow/unfollow
     const followUnfollowInput = async () => {
